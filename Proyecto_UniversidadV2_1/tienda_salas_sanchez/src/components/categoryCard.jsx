@@ -1,8 +1,13 @@
 
 {/* podemos crear un compoente aparte, y para psarle los datos usamos un pront */}
-function CategoryCard({category}) {
+function CategoryCard({category,onCategoryClick}) {
+  const buscarElProducto=()=>{
+    onCategoryClick(category.id)
+  }//callback para poder hacer el onclick en las categorias y buscar los productos 
     return (
-      <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
+      onClick={buscarElProducto}
+      >
         <img
           src={category.cat_image} alt={category.category_name}
           className="w-full h-48 object-cover object-center"

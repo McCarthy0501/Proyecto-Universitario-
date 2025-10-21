@@ -30,7 +30,7 @@ const fadeDown={
 export default function Home() {
   return (
     <>
-      <div className="flex flex-col items-center space-y-10 p-4 md:p-8 max-w-7xl mx-auto">
+      <main className="flex flex-col items-center space-y-10 p-4 md:p-8 max-w-7xl mx-auto">
 
         <motion.div
           variants={fadeDown} //condiciones de la animacion
@@ -98,7 +98,7 @@ export default function Home() {
           <Benefits />
         </motion.div>
 
-      </div>
+      </main>
     </>
   );
 }

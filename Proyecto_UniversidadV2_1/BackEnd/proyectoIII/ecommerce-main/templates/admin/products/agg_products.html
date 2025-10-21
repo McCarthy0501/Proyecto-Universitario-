@@ -1,0 +1,69 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+
+{% block content %}
+<h1>Agregar Productos</h1>
+
+<section class="section-conten padding-y" style="min-height:84vh">
+
+
+
+    {% if request.GET.command == 'verification' %}
+      <div class="container mx_auto alert alert-info" role="alert" style="max-width=380px; margin-top=100px;">
+        
+      </div>
+
+    {% else %}
+    <!-- ============================ COMPONENT LOGIN   ================================= -->
+        <div class="card mx-auto" style="max-width: 380px; margin-top:100px;">
+          {% include 'includes/alerts.html' %}
+          <div class="card-body">
+          <h4 class="card-title mb-4">Agregar Producto</h4>
+          <form action="{% url 'agg_products' %}" method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+
+              <div class="form-group">
+                 <input type="text" class="form-control" placeholder="Nombre del Prodcuto" name="product_name" >
+              </div> <!-- form-group// -->
+              
+              <div class="form-group"> <select class="form-select" aria-label="Default select example" name="category">
+        		<option selected>Seleccione la Categoria del Producto</option>
+        		{% for category in categoria %}
+           			 <option value="{{ category.id }}">{{ category.category_name }}</option>
+        		{% endfor %}
+    		</select>
+			</div><!-- FIn selecionar categoria--->
+              	
+                
+              
+               <div class="form-group">
+                <input type="number" class="form-control" placeholder="Precio" name="price">
+              </div> <!-- form-group// -->
+               <div class="form-group">
+                <input type="number" class="form-control" placeholder="Cantidad" name="stock">
+              </div> <!-- form-group// -->
+               <div class="form-group">
+                <input type="file" class="form-control" placeholder="Imagen" name="images" required="true">
+              </div> <!-- form-group// -->
+
+              <div class="form-group">
+                 <textarea class="form-control" placeholder="descripcion" name="description" ></textarea>
+              </div> <!-- form-group// -->
+
+              </div> <!-- form-group form-check .// -->
+              <div class="form-group">
+                  <button type="submit" class="btn btn-block" style="background-color:#3CF527"> Registrar  </button>
+              </div> <!-- form-group// -->
+          </form>
+          </div> <!-- card-body.// -->
+        </div> <!-- card .// -->
+
+        
+    <!-- ============================ COMPONENT LOGIN  END.// ================================= -->
+    {% endif %}
+
+    </section>
+    <!-- ========================= SECTION CONTENT END// =========
+
+{% endblock %}

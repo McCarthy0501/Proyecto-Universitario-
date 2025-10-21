@@ -5,6 +5,7 @@ import Login from './pages/ecomerce/login';
 import Register from './pages/ecomerce/register';
 import MostrarProductos from './pages/ecomerce/mostrarProductos';
 import MostrarCategorys from './pages/ecomerce/mostrarCategorias';
+import MostrarProductosPorCategorias from './pages/ecomerce/mostrarProductosPorCategorias';
 import CartPage from './pages/ecomerce/cartpage';
 import MainLayout from './components/MainLayout';
 import AdminLayout from './pages/admin/AdminLayout';
@@ -32,6 +33,7 @@ function App() {
               <Route path="/register" element={<Register />}></Route>
               <Route path="/productos" element={<MostrarProductos />}></Route>
               <Route path="/categorias" element={<MostrarCategorys />}></Route>
+              <Route path='/categoriasPorProductos/:id' element={<MostrarProductosPorCategorias/>}></Route>
               <Route path="/cart" element={<CartPage />}></Route>
             </Route>
 

@@ -8,7 +8,7 @@ function Logo() {
     return(
         <>
        
-        <img src={logo} alt="" className=" h-20 w-auto" />
+        <img src={logo} alt="" className=" h-40 w-auto" />
        
         
         </>
@@ -20,7 +20,7 @@ function LogoForm(){
     return (
       <>
         
-          <img src={logoForm} alt="" className=" h-20 w-auto" />
+          <img src={logoForm} alt="" className=" h-40 w-auto" />
         
       </>
     )
