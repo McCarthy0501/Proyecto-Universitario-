@@ -2,10 +2,10 @@ import Narbar from "./narbar";
 import Footer from "./footer";
 import { Outlet } from "react-router-dom";
 
-function MainLayout() {
+function MainLayout({ user, setUser }) {
   return (
     <>
-      <Narbar className="w-full ..."/>  {/* solo aparece en el frontend normal */}
+      <Narbar User={user} setuser={setUser} className="w-full ..."/>  {/* solo aparece en el frontend normal */}
        <main className="container mx-auto p-4 flex-1">
         <Outlet />  {/* renderiza la página correspondiente */}
       </main>

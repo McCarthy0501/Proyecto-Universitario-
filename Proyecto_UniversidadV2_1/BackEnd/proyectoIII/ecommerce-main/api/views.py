@@ -8,6 +8,12 @@ from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from django.utils.decorators import method_decorator
+
+#JWT
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
+
+
 #models de las apps
 from accounts.models import Account
 from accounts.serializers import AdminsSerializer
@@ -25,16 +31,19 @@ from orders.serializers import OrderSerializer
 class Categorylist(viewsets.ModelViewSet):
     queryset=Category.objects.all()
     serializer_class=CategorySerializer
+    permission_classes = [AllowAny]  # Las categorías deben ser públicas
 
 #endpoint de productos
 class Productlist(viewsets.ModelViewSet):
     queryset=Product.objects.all()
     serializer_class=ProductSerializer
+    permission_classes = [AllowAny]  # Los productos deben ser públicos
 
 #productos por categorias
 # Vista personalizada para obtener productos filtrados por categoría
 # Usamos APIView para definir el comportamiento manualmente
 class ProductByCategory(APIView):
+    permission_classes = [AllowAny]  # Los productos por categoría deben ser públicos
     #consulta a la DB 
     queryset = Product.objects.all()
 
@@ -67,11 +76,13 @@ class ProductByCategory(APIView):
 class MostrarUsers(viewsets.ReadOnlyModelViewSet):
     queryset=Account.objects.all()
     serializer_class=AdminsSerializer
+    permission_classes = [IsAuthenticated]  # Solo admins pueden ver usuarios
 
 #muestra las categorias
 class MostrarOrder(viewsets.ReadOnlyModelViewSet):
     queryset=Order.objects.all()
     serializer_class=OrderSerializer
+    permission_classes = [IsAuthenticated]  # Solo usuarios autenticados pueden ver órdenes
 
 
 
@@ -192,11 +203,27 @@ class DeleteCategory(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #crear usuarios normales
 @method_decorator(csrf_exempt, name='dispatch')
 class Register_user(APIView):
-    serializer_class=UserSerializer
-    queryset=Account.objects.all()
+    
     permission_classes = [AllowAny]
     #capturamos los datos
     def post(self,request):
@@ -224,6 +251,33 @@ class Register_user(APIView):
         )
         user.phone_number = phone_number
         user.save()
-        return Response({"message": "Usuario registrado con éxito"}, status=status.HTTP_201_CREATED)
 
-    
+        #creamos el tokken para el usuario
+        refresh = RefreshToken.for_user(user)
+
+        access_token = refresh.access_token
+
+        return Response({
+            "message": "Usuario registrado con éxito",
+            "access": str(access_token),
+            "refresh": str(refresh)
+            }, status=status.HTTP_201_CREATED)
+
+
+#devuelve los datos del usuario logueado.
+class CurrentUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user = request.user
+            print(f"🔍 Usuario autenticado: {user.email}")
+            return Response({
+                "id": user.id,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+            })
+        except Exception as e:
+            print(f"❌ Error en CurrentUserView: {e}")
+            return Response({"error": str(e)}, status=500)

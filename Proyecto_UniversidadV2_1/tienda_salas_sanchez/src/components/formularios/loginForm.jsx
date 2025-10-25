@@ -1,7 +1,8 @@
 // src/components/forms/LoginForm.jsx
 import  { useState } from 'react';
 import {LogoForm} from '../logo'; // Asegúrate de que la ruta sea correcta
-
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 {/* creamos la funcion y el estado incial del formulario, 
   el campo email y password seran cadenas vacias  */}
 function LoginForm() {
@@ -17,15 +18,85 @@ function LoginForm() {
 // para no perder los otros campos mientras actualizamos el que cambió.
     */
   }
+  const navegar=useNavigate();
+  const { login } = useAuth();
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aquí iría tu lógica de fetch para enviar los datos a la API de Django
-    // Endpoint: /api/login/
+    
+    if (!formData.email || !formData.password) {
+      alert("Todos los campos son obligatorios");
+      return;
+    }
+
+    const url="http://localhost:8000/api/token/";
+    try {
+      const peticion= await fetch(url,{
+        method:"POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await peticion.json();
+      if (peticion.ok){
+        localStorage.setItem("accessToken", data.access);
+        localStorage.setItem("refreshToken", data.refresh);
+        localStorage.setItem("userEmail", formData.email); // Guardar email para fallback
+
+        // Obtener información completa del usuario
+        try {
+          const userResponse = await fetch('http://localhost:8000/api/users/me/', {
+            headers: {
+              'Authorization': `Bearer ${data.access}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+            // Actualizar el contexto de autenticación con datos completos
+            login(userData);
+          } else {
+            // Si no se puede obtener la info del usuario, usar datos básicos
+            const basicUserData = {
+              id: 1,
+              first_name: 'Usuario',
+              last_name: 'Autenticado',
+              email: formData.email,
+              username: formData.email.split('@')[0]
+            };
+            login(basicUserData);
+          }
+        } catch (userError) {
+          console.error('Error al obtener información del usuario:', userError);
+          // Usar datos básicos como fallback
+          const basicUserData = {
+            id: 1,
+            first_name: 'Usuario',
+            last_name: 'Autenticado',
+            email: formData.email,
+            username: formData.email.split('@')[0]
+          };
+          login(basicUserData);
+        }
+
+        alert("Inicio de sesión exitoso 🔥");
+        navegar("/");
+      }else {
+        alert(data.detail || "Email o contraseña incorrectos ❌");
+      }
+      
+      
+    } catch (error) {
+      console.error(error);
+      alert("Error al iniciar sesión ❌");
+      
+    }
     console.log('Datos del formulario de inicio de sesión:', formData);
   };
 

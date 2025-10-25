@@ -52,7 +52,7 @@ class Account(AbstractBaseUser):
     last_login = models.DateTimeField(auto_now_add=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True) #modificado solo para desarrollo al pasar a produccion pasar a Flase
     is_superadmin = models.BooleanField(default=False)
 
 
@@ -73,6 +73,8 @@ class Account(AbstractBaseUser):
     def has_perm(self, perm, obj=None):
         return self.is_admin
 
+    def has_perms(self, perm_list, obj=None):
+        return all(self.has_perm(perm, obj) for perm in perm_list)
 
     def has_module_perms(self, add_label):
         return True

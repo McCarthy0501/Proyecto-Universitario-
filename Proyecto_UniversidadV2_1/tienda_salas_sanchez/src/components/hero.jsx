@@ -1,4 +1,5 @@
-
+import PromoCard from "./ProBanner";
+import OfferBanner from "./OffertCard";
 function Hero () {
  
   
@@ -6,6 +7,7 @@ function Hero () {
    
       <>
       <OfferBanner/>
+      
       </>
     
 

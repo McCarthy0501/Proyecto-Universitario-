@@ -37,7 +37,7 @@ function SimpleSlider() {
   };
 
   return (
-    <div className="relative w-full h-64 md:h-154 overflow-hidden rounded-lg shadow-lg">
+    <div className="relative w-full h-80 md:h-[500px] lg:h-[600px] overflow-hidden rounded-xl shadow-2xl">
       {/* Slider */}
       <div
         className="flex transition-transform duration-700"

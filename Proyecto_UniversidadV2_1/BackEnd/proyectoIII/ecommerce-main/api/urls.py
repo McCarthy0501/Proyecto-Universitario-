@@ -1,6 +1,9 @@
 from django.urls import path,include
 from .views import *
 from rest_framework import routers
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework.response import Response
+
 router = routers.DefaultRouter()
 router.register(r'categorias',Categorylist,'categorias')
 router.register(r'productos',Productlist,'producto')
@@ -16,8 +19,12 @@ urlpatterns = [
     path('admin/aggCategory/',AggCategorys.as_view(),name='aggCategory'),
     path('admin/aggProduct/',AggProduct.as_view(),name="aggProduct"),
     path('register_user/',Register_user.as_view(),name="register_user"),
-    path('productosPorCategorias/<int:pk>/',ProductByCategory.as_view(),name="productosPorCategorias")
-   
+    path('productosPorCategorias/<int:pk>/',ProductByCategory.as_view(),name="productosPorCategorias"),
+    path('users/me/', CurrentUserView.as_view(), name='current_user'),
+    path('test/', lambda request: Response({"message": "API funcionando correctamente"}), name='test_api')
+]
 
-   
+urlpatterns += [
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),   # login JWT
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # refresco JWT
 ]

@@ -1,6 +1,8 @@
 // src/components/forms/RegisterForm.jsx
 import  { useState } from 'react';
-import {LogoForm} from"../logo"
+import {LogoForm} from"../logo";
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 function RegisterForm() {
   const [formData, setFormData] = useState({
     first_name: '',
@@ -16,6 +18,9 @@ function RegisterForm() {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+  //redireccion
+  const navegar=useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,15 +44,31 @@ function RegisterForm() {
         body: JSON.stringify(formData),
       });
       const respuesta= await peticion.json();
-      if (!respuesta.ok){
+      if (!peticion.ok){
         alert(respuesta.message || "error al registrar el Usuario");
         return;
       }
+
+      // Guardar JWT en localStorage
+      localStorage.setItem("accessToken", respuesta.access);
+      localStorage.setItem("refreshToken", respuesta.refresh);
+
+      // Actualizar el contexto de autenticación
+      login({ 
+        email: formData.email,
+        username: formData.username,
+        token: respuesta.access 
+      });
+
+      console.log("accessToken", respuesta.access);
+      console.log("refreshToken", respuesta.refresh);
+      
       alert("Usuario registrado con exito !! ")
+      navegar('/')
       
     } catch (error) {
       console.error(error);
-  alert(respuesta.message || "usuario registrado exitosamente");
+        alert(respuesta.message || "usuario registrado exitosamente");
     };
 
   };
