@@ -8,6 +8,7 @@ import Newsletter from "../../components/NewLetter";
 import OfferBanner from "../../components/OffertCard";
 import BrandStatement from "../../components/BrandStatement";
 import TopSellingProducts from "../../components/ProductsTop";
+import Recomendacion from "../../components/Recomendacion";
 
 // Variante común para todos los bloques
 const fadeUp = {
@@ -58,7 +59,7 @@ export default function Home() {
         transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }} // Pequeño delay
         className="w-full"
     >
-        <Benefits />
+        <Recomendacion />
     </motion.div>
 
     {/* 3. OFFER BANNER - CTA Fuerte, usa fadeDown para un contraste visual con Benefits */}
@@ -120,6 +121,10 @@ export default function Home() {
     >
         <BrandStatement/>
     </motion.div>
+
+
+
+
 
     {/* 8. NEWSLETTER - Cierre final, entrada desde arriba */}
     <motion.div

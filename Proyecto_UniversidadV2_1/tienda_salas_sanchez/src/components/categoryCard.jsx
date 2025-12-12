@@ -2,7 +2,7 @@
 {/* podemos crear un compoente aparte, y para psarle los datos usamos un pront */}
 function CategoryCard({category,onCategoryClick}) {
   const buscarElProducto=()=>{
-    onCategoryClick(category.id)
+    onCategoryClick()
   }//callback para poder hacer el onclick en las categorias y buscar los productos 
     return (
       <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"

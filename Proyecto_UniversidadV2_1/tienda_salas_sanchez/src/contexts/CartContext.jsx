@@ -1,9 +1,9 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 
-const CartContext = createContext();
+const CartContext = createContext(); //creamos el contexto
 
 export const useCart = () => {
-  const context = useContext(CartContext);
+  const context = useContext(CartContext); //usamos el contexto creado
   if (!context) {
     throw new Error('useCart debe ser usado dentro de un CartProvider');
   }
@@ -11,8 +11,8 @@ export const useCart = () => {
 };
 
 const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
-  const [isOpen, setIsOpen] = useState(false);
+  const [cartItems, setCartItems] = useState([]); //para guardar los articulos
+  const [isOpen, setIsOpen] = useState(false);//si esta habilitado el carrito
 
   // Cargar carrito desde localStorage al inicializar
   useEffect(() => {
@@ -125,4 +125,5 @@ const CartProvider = ({ children }) => {
 };
 
 export { CartProvider };
+
 

@@ -27,7 +27,7 @@ function App() {
   return (
     <>
       {/* iniciamos con el nombramiento de rutas*/}
-      <AuthProvider>
+      <AuthProvider> {/* estados globales  */}
         <CartProvider>
           <div className="flex flex-col min-h-screen bg-gray-100">
             

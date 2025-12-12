@@ -8,7 +8,7 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar si hay un token almacenado al cargar la aplicación
+    // Verificamos si hay un token almacenado al cargar la aplicación
     const token = localStorage.getItem('accessToken');
     if (token) {
       // Solo hacer la petición si el token existe
@@ -54,8 +54,8 @@ const AuthProvider = ({ children }) => {
         const email = localStorage.getItem('userEmail') || 'usuario@email.com';
         const basicUserData = {
           id: 1,
-          first_name: 'Andrea',
-          last_name: 'Jaimes',
+          first_name: 'Reymon',
+          last_name: 'Casique',
           email: email,
           username: email.split('@')[0]
         };
@@ -70,8 +70,8 @@ const AuthProvider = ({ children }) => {
       const email = localStorage.getItem('userEmail') || 'usuario@email.com';
       const basicUserData = {
         id: 1,
-        first_name: 'Andrea',
-        last_name: 'Jaimes',
+        first_name: 'Reymon',
+        last_name: 'Casique',
         email: email,
         username: email.split('@')[0]
       };
