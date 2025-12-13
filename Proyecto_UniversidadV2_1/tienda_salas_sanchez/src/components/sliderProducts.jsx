@@ -1,8 +1,8 @@
 import { useState } from "react";
-import img1 from "../assets/imagenes/slider/oferta_medicamentos.png";
-import img2 from"../assets/imagenes/slider/oferta_tecnologia.png";
-import img3 from"../assets/imagenes/slider/oferta_comidarapida.png";
-import img4 from"../assets/imagenes/slider/oferta_motos.png";
+import img1 from "../assets/imagenes/slider/oferta_medicamentos.webp";
+import img2 from"../assets/imagenes/slider/oferta_tecnologia.webp";
+import img3 from"../assets/imagenes/slider/oferta_comidarapida.webp";
+import img4 from"../assets/imagenes/slider/oferta_motos.webp";
 function SimpleSlider() {
   // Array de imágenes por URL
   const slides = [

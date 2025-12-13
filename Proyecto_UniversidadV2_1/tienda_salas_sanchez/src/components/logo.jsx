@@ -1,5 +1,5 @@
-import logo     from '../assets/imagenes/SalasSanchez1629.png'
-import logoForm from'../assets/imagenes/SalasSanchez1629_forms.png'
+import logo     from '../assets/imagenes/SalasSanchez1629.webp'
+import logoForm from'../assets/imagenes/SalasSanchez1629_forms.webp'
 
 
 
