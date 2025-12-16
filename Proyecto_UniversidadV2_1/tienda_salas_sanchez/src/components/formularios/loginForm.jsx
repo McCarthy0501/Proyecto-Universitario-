@@ -1,6 +1,6 @@
 // src/components/forms/LoginForm.jsx
 import  { useState } from 'react';
-import {LogoForm} from '../logo'; // Asegúrate de que la ruta sea correcta
+import {LogoForm} from '../header/logo'; // Asegúrate de que la ruta sea correcta
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 {/* creamos la funcion y el estado incial del formulario, 

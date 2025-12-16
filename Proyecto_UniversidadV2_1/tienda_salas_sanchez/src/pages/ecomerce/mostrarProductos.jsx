@@ -1,4 +1,4 @@
-import Productos  from"../../components/products"
+import Productos  from"../../components/main/products"
 
 function MostrarProductos() {
     return(

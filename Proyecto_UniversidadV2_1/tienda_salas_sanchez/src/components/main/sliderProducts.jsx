@@ -1,43 +1,14 @@
-import { useState } from "react";
-import img1 from "../assets/imagenes/slider/oferta_medicamentos.webp";
-import img2 from"../assets/imagenes/slider/oferta_tecnologia.webp";
-import img3 from"../assets/imagenes/slider/oferta_comidarapida.webp";
-import img4 from"../assets/imagenes/slider/oferta_motos.webp";
+import { useSlider} from "../Hooks/useSlider";
 function SimpleSlider() {
-  // Array de imágenes por URL
-  const slides = [
-    {
-      id: 1,
-      image: img1,
-    },
-    {
-      id: 2,
-      image: img2,
-    },
-    {
-      id: 3,
-      image: img3,
-    },
-    {
-      id: 4,
-      image: img4,
-    },
-  ];
-
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % slides.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentIndex((prev) =>
-      prev === 0 ? slides.length - 1 : prev - 1
-    );
-  };
-
+  // usamos el hook personalizado
+  const{
+    slides,
+    prevSlide,
+    nextSlide,
+    currentIndex,
+  }=useSlider();
   return (
-    <div className="relative w-full h-80 md:h-[500px] lg:h-[600px] overflow-hidden rounded-xl shadow-2xl">
+    <div className="relative w-full h-80 md:h-[500px] lg:h-[400px] overflow-hidden rounded-xl shadow-2xl">
       {/* Slider */}
       <div
         className="flex transition-transform duration-700"

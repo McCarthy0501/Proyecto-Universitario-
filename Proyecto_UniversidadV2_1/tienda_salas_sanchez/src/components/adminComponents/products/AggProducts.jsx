@@ -1,5 +1,5 @@
 import { useState,useEffect } from "react";
-import { LogoForm } from "../../logo";
+import { LogoForm } from "../../header/logo";
 function AggProducts() {
    const [categoria,setCategoria]=useState([]);
     const [error, setError] = useState("");

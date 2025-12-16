@@ -1,6 +1,6 @@
 import { useNavigate,useParams } from "react-router-dom";
 import { useEffect,useState } from "react";
-import { LogoForm } from "../../logo";
+import { LogoForm } from "../../header/logo";
 
 export default function DeleteCategory() {
     //obtenemos la id por medio de la url de table categori

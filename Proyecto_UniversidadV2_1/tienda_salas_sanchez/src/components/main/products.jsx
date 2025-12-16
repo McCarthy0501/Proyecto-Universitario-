@@ -1,5 +1,5 @@
 import { useState,useEffect } from "react";
-import ProductCard from "./productCard";
+import ProductCard from "../complementos/productCard";
 import { motion } from "framer-motion";
 
 {/*creamos la funcion */}

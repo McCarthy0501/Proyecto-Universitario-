@@ -1,7 +1,7 @@
 import { User, LogOut, Settings } from 'lucide-react';
 import { UserPlus } from 'lucide-react';
-import ShopingCart from "./shopingCart";
-import { useAuth } from '../contexts/AuthContext';
+import ShopingCart from "../complementos/shopingCart";
+import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 function CajitaUser() {

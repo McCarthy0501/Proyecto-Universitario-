@@ -1,6 +1,6 @@
 // src/components/forms/RegisterForm.jsx
 import  { useState } from 'react';
-import {LogoForm} from"../logo";
+import {LogoForm} from"../header/logo";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 function RegisterForm() {

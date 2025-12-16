@@ -1,5 +1,5 @@
 
-import ProductCard from "../../components/productCard";
+import ProductCard from "../../components/complementos/productCard";
 import { useEffect,useState } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";

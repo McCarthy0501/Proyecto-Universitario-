@@ -1,4 +1,3 @@
-import React from 'react';
 import { FiTruck, FiShield, FiAward, FiHeart, FiPackage, FiDollarSign } from 'react-icons/fi';
 
 const Recomendacion = () => {

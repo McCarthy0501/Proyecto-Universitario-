@@ -9,7 +9,7 @@ import MostrarProductos from './pages/ecomerce/mostrarProductos';
 import MostrarCategorys from './pages/ecomerce/mostrarCategorias';
 import MostrarProductosPorCategorias from './pages/ecomerce/mostrarProductosPorCategorias';
 import CartPage from './pages/ecomerce/cartpage';
-import MainLayout from './components/MainLayout';
+import MainLayout from '././components/main/MainLayout';
 import MiCuenta from './pages/ecomerce/miCuenta';
 
 

@@ -1,5 +1,4 @@
-import PromoCard from "./ProBanner";
-import OfferBanner from "./OffertCard";
+import OfferBanner from "../complementos/OffertCard";
 function Hero () {
  
   

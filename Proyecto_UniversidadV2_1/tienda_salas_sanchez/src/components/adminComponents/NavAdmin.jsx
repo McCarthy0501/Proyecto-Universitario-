@@ -1,6 +1,6 @@
 
-import BarraBusqueda from "../barraBusqueda"
-import { Logo } from "../logo"
+//import BarraBusqueda from "../barraBusqueda"
+import { Logo } from "../header/logo"
 
 
 
@@ -12,7 +12,7 @@ function NavAdmin(){
             <a href="/admin" > <Logo /></a>
           </div>
           <div className="md:flex-grow md:mx-10">
-            <BarraBusqueda/>
+           
             
           </div>
           <div className="mt-4 md:mt-0">

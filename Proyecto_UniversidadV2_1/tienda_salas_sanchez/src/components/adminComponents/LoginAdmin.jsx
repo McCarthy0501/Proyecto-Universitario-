@@ -1,5 +1,5 @@
 import  { useState,useEffect } from 'react';
-import { LogoForm } from '../logo';
+import { LogoForm } from '../header/logo';
 import { useNavigate } from "react-router-dom";
 
 function FormAdmin() {

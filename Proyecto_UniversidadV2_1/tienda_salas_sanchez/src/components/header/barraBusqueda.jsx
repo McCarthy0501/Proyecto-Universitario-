@@ -1,5 +1,4 @@
-import { useState,useEffect } from "react";
-import Boton from "./boton";
+import Boton from "../complementos/boton";
 
 
 

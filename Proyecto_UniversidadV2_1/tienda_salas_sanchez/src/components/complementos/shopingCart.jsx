@@ -1,5 +1,5 @@
 import { ShoppingCart } from 'lucide-react';
-import { useCart } from '../contexts/CartContext';
+import { useCart } from '../../contexts/CartContext';
 
 function ShopingCart() {
     const { getTotalItems } = useCart();

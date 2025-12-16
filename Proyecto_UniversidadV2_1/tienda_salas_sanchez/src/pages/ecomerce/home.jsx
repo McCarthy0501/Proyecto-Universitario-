@@ -1,14 +1,12 @@
 import { motion } from "framer-motion"; // librerias de react para animaciones
 import MostrarCategorys from "./mostrarCategorias";
-import Hero from "../../components/hero";
-import SimpleSlider from "../../components/sliderProducts";
-import Benefits from "../../components/beneficios";
-import Testimonials from "../../components/testimonios";
-import Newsletter from "../../components/NewLetter";
-import OfferBanner from "../../components/OffertCard";
-import BrandStatement from "../../components/BrandStatement";
-import TopSellingProducts from "../../components/ProductsTop";
-import Recomendacion from "../../components/Recomendacion";
+import SimpleSlider from "../../components/main/sliderProducts"
+import Testimonials from "../../components/complementos/testimonios";
+import Newsletter from "../../components/complementos/NewLetter";
+import OfferBanner from "../../components/complementos/OffertCard";
+import BrandStatement from "../../components/complementos/BrandStatement";
+import TopSellingProducts from "../../components/main/ProductsTop";
+import Recomendacion from "../../components/complementos/Recomendacion";
 
 // Variante común para todos los bloques
 const fadeUp = {

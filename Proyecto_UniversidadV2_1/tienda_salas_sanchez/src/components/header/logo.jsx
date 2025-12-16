@@ -1,8 +1,5 @@
-import logo     from '../assets/imagenes/SalasSanchez1629.webp'
-import logoForm from'../assets/imagenes/SalasSanchez1629_forms.webp'
-
-
-
+import logo     from '../../assets/imagenes/SalasSanchez1629.webp'
+import logoForm from'../../assets/imagenes/SalasSanchez1629_forms.webp'
 
 function Logo() {
     return(

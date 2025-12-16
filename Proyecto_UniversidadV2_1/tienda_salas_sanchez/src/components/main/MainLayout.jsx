@@ -1,5 +1,5 @@
-import Narbar from "./narbar";
-import Footer from "./footer";
+import Narbar from "../header/narbar";
+import Footer from "../footer/footer";
 import { Outlet } from "react-router-dom";
 
 function MainLayout({ user, setUser }) {

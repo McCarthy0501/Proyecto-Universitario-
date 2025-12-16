@@ -2,7 +2,7 @@
 import BarraBusqueda from "./barraBusqueda";
 import CajitaUser from "./cajaUers";
 import { Logo } from "./logo";
-import { useState,useEffect } from "react";
+
 
 function Narbar() {
     return (

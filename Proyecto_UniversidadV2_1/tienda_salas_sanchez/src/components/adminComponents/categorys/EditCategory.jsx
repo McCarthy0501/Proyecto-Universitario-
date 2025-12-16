@@ -1,6 +1,6 @@
 import { useNavigate,useParams } from "react-router-dom";
 import { useEffect,useState } from "react";
-import { LogoForm } from "../../logo";
+import { LogoForm } from "../../header/logo";
 export default function EditCategory(){
     const { id } = useParams();//extraemos el parametro de la category que viene de url de tablecategory
     console.log(id)

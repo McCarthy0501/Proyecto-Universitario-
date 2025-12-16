@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useCart } from '../contexts/CartContext';
+import { useCart } from '../../contexts/CartContext';
 import { ShoppingCart, Plus, Minus, Trash2 } from 'lucide-react';
 
 function ProductCard({product}) {
