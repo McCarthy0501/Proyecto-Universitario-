@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { slides } from "../logic/main/siler";
+import { slides } from "../../logic/main/siler";
 
 export const useSlider = ()=>{
 

@@ -1,25 +1,10 @@
-import { useState,useEffect } from "react";
+import { useProducts } from "../../Hooks/main/useProducts";
 import ProductCard from "../complementos/productCard";
 import { motion } from "framer-motion";
 
 {/*creamos la funcion */}
 function Productos() {
-    const [product,setProduct]=useState([])
-    useEffect(() => {
-      const peticion = async () => {
-        const url = "http://localhost:8000/api/productos"; //url de la api creada en django
-        try {
-          const peti = await fetch(url); //hacemos la peticion confetch y como parametro la variable url
-          const data = await peti.json();//transformamos la respuesta en json
-          
-          setProduct(data);//cambiamos el estado y como parametro pasamos el json
-        } catch (e) {
-          console.log("error en los datos", e);//capturamos los errores
-        }
-      };
-      peticion();//ejecutamos la funcion
-    }, []);//el[ ] para que se ejecute una sola vez
-
+   const {product}=useProducts(); // uso del hook personalizado
     const animacion={
       desaparece:{opacity:0,x:-50},
       aparece:{opacity:1,x:0},

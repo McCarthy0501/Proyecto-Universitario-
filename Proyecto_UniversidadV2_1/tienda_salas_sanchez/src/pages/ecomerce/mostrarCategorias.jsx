@@ -1,4 +1,4 @@
-import Categorys from "../../components/complementos/categorys";
+import Categorys from "../../components/main/categorys";
 
 function MostrarCategorys() {
     return(

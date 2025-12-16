@@ -1,4 +1,4 @@
-import { useSlider} from "../Hooks/useSlider";
+import { useSlider} from "../../Hooks/main/useSlider";
 function SimpleSlider() {
   // usamos el hook personalizado
   const{
