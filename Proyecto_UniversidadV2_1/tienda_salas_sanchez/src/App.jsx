@@ -11,6 +11,8 @@ import MostrarProductosPorCategorias from './pages/ecomerce/mostrarProductosPorC
 import CartPage from './pages/ecomerce/cartpage';
 import MainLayout from '././components/main/MainLayout';
 import MiCuenta from './pages/ecomerce/miCuenta';
+import ForgotPasswordForm from './components/formularios/forgotPasswordForm';
+import SearchResults from './pages/ecomerce/searchResults';
 
 
 
@@ -39,11 +41,13 @@ function App() {
               {/*configuracion de pag de inicio del ecomerce*/}
               <Route path="/login" element={<Login />}></Route>
               <Route path="/register" element={<Register />}></Route>
+              <Route path="/forgot-password" element={<ForgotPasswordForm />}></Route>
               <Route path="/productos" element={<MostrarProductos />}></Route>
               <Route path="/categorias" element={<MostrarCategorys />}></Route>
               <Route path='/categoriasPorProductos/:id' element={<MostrarProductosPorCategorias/>}></Route>
               <Route path="/cart" element={<CartPage />}></Route>
               <Route path='/micuenta' element={<MiCuenta/>}></Route>
+              <Route path="/search" element={<SearchResults />}></Route>
 
             </Route>
 

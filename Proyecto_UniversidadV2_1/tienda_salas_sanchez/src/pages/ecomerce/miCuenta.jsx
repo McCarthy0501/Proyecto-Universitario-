@@ -2,11 +2,15 @@ import { useState, useEffect } from "react"
 import { useAuth } from "../../contexts/AuthContext"
 import { User, Mail, Phone, MapPin, ShoppingBag, Settings, Edit, LogOut } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import EditProfileForm from '../../components/formularios/editProfileForm'
+import ChangePasswordForm from '../../components/formularios/changePasswordForm'
 
 export default function MiCuenta(){
     const { user, logout, refreshUserInfo } = useAuth()
     const navigate = useNavigate()
     const [activeTab, setActiveTab] = useState('perfil')
+    const [showEditProfile, setShowEditProfile] = useState(false)
+    const [showChangePassword, setShowChangePassword] = useState(false)
 
     // Debug: Mostrar datos del usuario en consola
     useEffect(() => {
@@ -135,7 +139,10 @@ export default function MiCuenta(){
                                 <div className="flex items-center justify-between mb-6">
                                     <h2 className="text-xl font-bold text-gray-900">Información Personal</h2>
                                     <div className="flex space-x-2">
-                                                 <button className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors">
+                                        <button 
+                                            onClick={() => setShowEditProfile(true)}
+                                            className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
+                                        >
                                             <Edit className="w-4 h-4" />
                                             <span>Editar</span>
                                         </button>
@@ -245,17 +252,7 @@ export default function MiCuenta(){
                                 <div className="space-y-6">
                                     <div className="border-b border-gray-200 pb-4">
                                         <h3 className="text-lg font-medium text-gray-900 mb-3">Seguridad</h3>
-                                        <div className="space-y-3">
-                                            <button className="w-full text-left p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <h4 className="font-medium text-gray-900">Cambiar Contraseña</h4>
-                                                        <p className="text-sm text-gray-600">Actualiza tu contraseña de acceso</p>
-                                                    </div>
-                                                    <Edit className="w-5 h-5 text-gray-400" />
-                                                </div>
-                                            </button>
-                                        </div>
+                                        <ChangePasswordForm />
                                     </div>
 
                                     <div className="border-b border-gray-200 pb-4">
@@ -291,6 +288,21 @@ export default function MiCuenta(){
                     </div>
                 </div>
             </div>
+            
+            {/* Modal de edición de perfil */}
+            {showEditProfile && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <EditProfileForm
+                            onClose={() => setShowEditProfile(false)}
+                            onUpdate={() => {
+                                refreshUserInfo();
+                                setShowEditProfile(false);
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

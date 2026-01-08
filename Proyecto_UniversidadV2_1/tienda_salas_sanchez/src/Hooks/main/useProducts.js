@@ -1,4 +1,4 @@
-import { useState,useEffect } from "react";
+import { useState,useEffect,useMemo } from "react";
 
 
 export const useProducts=()=>{
@@ -17,10 +17,33 @@ export const useProducts=()=>{
       };
       peticion();//ejecutamos la funcion
     }, []);//el[ ] para que se ejecute una sola vez
+    
+    const productosOrdenados=useMemo(()=>{
+
+      const copiaProductos=[...product]//copia de los productos
+
+      //ojo no esta acomodadoooo
+      return copiaProductos.sort((a,b)=>{
+        
+        const producto_A=a.product_name.toUpperCase();
+
+        const producto_B=b.product_name.toUpperCase();
+
+        if (producto_A<producto_B){
+          return -1
+       
+        }
+         else if (producto_A>producto_B){
+          return 1
+        }
+        return 0
+      })
+        
+    },[product])
 
     return{
-        product,
-        
+        product, // Productos originales
+        productosOrdenados, // Productos ordenados alfabéticamente
     }
 
 }

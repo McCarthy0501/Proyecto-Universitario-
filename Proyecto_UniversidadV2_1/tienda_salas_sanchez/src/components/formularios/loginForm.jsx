@@ -19,7 +19,7 @@ function LoginForm() {
     */
   }
   const navegar=useNavigate();
-  const { login } = useAuth();
+  const { refreshUserInfo } = useAuth();
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -48,43 +48,18 @@ function LoginForm() {
         localStorage.setItem("refreshToken", data.refresh);
         localStorage.setItem("userEmail", formData.email); // Guardar email para fallback
 
-        // Obtener información completa del usuario
-        try {
-          const userResponse = await fetch('http://localhost:8000/api/users/me/', {
-            headers: {
-              'Authorization': `Bearer ${data.access}`,
-              'Content-Type': 'application/json',
-            },
-          });
-
-          if (userResponse.ok) {
-            const userData = await userResponse.json();
-            // Actualizar el contexto de autenticación con datos completos
-            login(userData);
-          } else {
-            // Si no se puede obtener la info del usuario, usar datos básicos
-            const basicUserData = {
-              id: 1,
-              first_name: 'Usuario',
-              last_name: 'Autenticado',
-              email: formData.email,
-              username: formData.email.split('@')[0]
-            };
-            login(basicUserData);
-          }
-        } catch (userError) {
-          console.error('Error al obtener información del usuario:', userError);
-          // Usar datos básicos como fallback
-          const basicUserData = {
-            id: 1,
-            first_name: 'Usuario',
-            last_name: 'Autenticado',
-            email: formData.email,
-            username: formData.email.split('@')[0]
-          };
-          login(basicUserData);
-        }
-
+        // Intentar obtener información del usuario inmediatamente
+        // Si falla, no es crítico porque el token está guardado y se cargará al recargar
+        refreshUserInfo().then(() => {
+          console.log('✅ Información del usuario actualizada correctamente');
+        }).catch((error) => {
+          console.warn('⚠️ No se pudo actualizar la información inmediatamente:', error);
+          console.warn('⚠️ El token está guardado, la información se cargará automáticamente');
+        });
+        
+        // Mostrar mensaje de éxito y navegar inmediatamente
+        // El token está guardado, así que el usuario puede continuar
+        // Si refreshUserInfo aún está ejecutándose, se completará en segundo plano
         alert("Inicio de sesión exitoso 🔥");
         navegar("/");
       }else {
@@ -139,6 +114,15 @@ function LoginForm() {
           >
             Iniciar Sesión
           </button>
+          
+          <div className="text-center mt-4">
+            <a
+              href="/#/forgot-password"
+              className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              ¿Olvidaste tu contraseña?
+            </a>
+          </div>
         </form>
       </div>
     </div>

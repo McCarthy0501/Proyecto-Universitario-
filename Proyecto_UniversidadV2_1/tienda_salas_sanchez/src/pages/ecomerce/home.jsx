@@ -7,26 +7,8 @@ import OfferBanner from "../../components/complementos/OffertCard";
 import BrandStatement from "../../components/complementos/BrandStatement";
 import TopSellingProducts from "../../components/main/ProductsTop";
 import Recomendacion from "../../components/complementos/Recomendacion";
+import { fadeUp,fadeDown,fadeRight,fadeLef } from "../../animaciones/animaciones";
 
-// Variante común para todos los bloques
-const fadeUp = {
-  hidden: { opacity: 0, y: 50 },    
-  visible: { opacity: 1, y: 0 },    
-};
-const fadeLef={
-  desaparece:{opacity:0, x:-50},
-  aparece:{opacity:1, x:0},
-}
-
-const fadeRight={
-  desaparece:{opacity:0, x:50},
-  aparece:{opacity:1, x:0},
-}
-
-const fadeDown={
-  desaparece:{opacity:0, y:-50},
-  aparece:{opacity:1, y:0},
-}
 
 export default function Home() {
   return (
