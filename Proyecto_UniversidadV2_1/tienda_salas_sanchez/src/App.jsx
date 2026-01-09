@@ -19,6 +19,7 @@ import SearchResults from './pages/ecomerce/searchResults';
 import FormAdmin from './components/adminComponents/LoginAdmin';
 import EditCategory from './components/adminComponents/categorys/EditCategory';
 import DeleteCategory from './components/adminComponents/categorys/DeleteCategory';
+import EditProducts from './components/adminComponents/products/EditProducts';
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminPanel from './pages/admin/AdminPanel';
 
@@ -58,6 +59,7 @@ function App() {
               <Route path='/adminPanel' element={<AdminPanel/>}></Route>
               <Route path='/editcategory/:id' element={<EditCategory/>}></Route>
               <Route path='/deletecategory/:id' element={<DeleteCategory/>}></Route>
+              <Route path='/admin/editproduct/:id' element={<EditProducts/>}></Route>
             </Route>
           </Routes>
             

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaBoxes, FaUsers, FaSignOutAlt, FaChevronDown, FaChevronRight, FaBoxOpen,FaClipboardList   } from "react-icons/fa";
+import { FaBoxes, FaUsers, FaSignOutAlt, FaChevronDown, FaChevronRight, FaBoxOpen, FaClipboardList, FaChartBar, FaHome } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -45,6 +45,17 @@ export default function AdminSidebar({ setActiveSection }) {
 
           {/* Menu */}
           <nav className="flex-1 p-4 space-y-2">
+            {/* Dashboard */}
+            <button
+              onClick={() => setActiveSection("dashboard")}
+              className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-700 rounded transition"
+            >
+              <span className="flex items-center gap-3">
+                <FaChartBar />
+                Dashboard
+              </span>
+            </button>
+
             {/* Categorías */}
             <div>
               <button
