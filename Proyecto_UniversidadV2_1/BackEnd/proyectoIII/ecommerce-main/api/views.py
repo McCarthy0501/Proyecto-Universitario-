@@ -130,8 +130,12 @@ class AdminsLogin(APIView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AggCategorys(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+    
     def post(self,request):
+        if not request.user.is_staff:
+            return Response({"error": "No autorizado"}, status=status.HTTP_403_FORBIDDEN)
+            
         category_name=request.data.get("category_name")
         descritption=request.data.get("description")
         category_slug=request.data.get("slug")
@@ -144,33 +148,29 @@ class AggCategorys(APIView):
             cat_image=cat_image
 
         )
-        print(request.FILES) #aqui verifico si se envio el archivo
+        print(request.FILES)
 
         return Response({
             "message": "Haz Creado Con Exito la Categoria",
-          
-
-        
-          
         })
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AggProduct(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+    
     def post(self,request):
-        permission_classes = [AllowAny]
-        #capturamos los datos
+        if not request.user.is_staff:
+            return Response({"error": "No autorizado"}, status=status.HTTP_403_FORBIDDEN)
+            
         product_name=request.data.get("product_name")
         slug=request.data.get("slug")
         description=request.data.get("description")
         price=request.data.get("price")
         images=request.FILES.get("images")
         stock=request.data.get("stock")
-        category_id=request.data.get("category") #capturo el valor  de  la categoria
-        category=Category.objects.get(id=category_id) #obtengo la id de la categoria para inyectarla
-
-        
+        category_id=request.data.get("category")
+        category=Category.objects.get(id=category_id)
 
         Product.objects.create(
             product_name=product_name,
@@ -180,10 +180,7 @@ class AggProduct(APIView):
             images=images,
             stock=stock,
             category=category
-
-
         )
-        print(request.FILES)
 
         return Response({
             "message":"Producto creado con exito"
@@ -194,13 +191,23 @@ class AggProduct(APIView):
 class EditCategory(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        if not self.request.user.is_staff:
+            return Category.objects.none()
+        return Category.objects.all()
 
 @method_decorator(csrf_exempt, name='dispatch')
 class DeleteCategory(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        if not self.request.user.is_staff:
+            return Category.objects.none()
+        return Category.objects.all()
 
 
 
@@ -281,3 +288,110 @@ class CurrentUserView(APIView):
         except Exception as e:
             print(f"❌ Error en CurrentUserView: {e}")
             return Response({"error": str(e)}, status=500)
+
+
+import uuid
+import random
+import string
+
+# Crear orden desde frontend
+@method_decorator(csrf_exempt, name='dispatch')
+class CreateOrderView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def generate_order_number(self):
+        return ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
+
+    def post(self, request):
+        from orders.serializers import CreateOrderSerializer
+        from orders.models import Order, OrderProduct, Payment
+        from store.models import Product
+
+        serializer = CreateOrderSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        data = serializer.validated_data
+        
+        # Calcular total
+        subtotal = 0
+        order_products = []
+        
+        for prod in data['products_data']:
+            product = Product.objects.get(id=prod['id'])
+            subtotal += product.price * prod['quantity']
+            order_products.append({
+                'product': product,
+                'quantity': prod['quantity'],
+                'price': product.price
+            })
+
+        tax = subtotal * 0.16
+        order_total = subtotal + tax
+
+        # Crear Payment (simulado)
+        payment = Payment.objects.create(
+            user=request.user,
+            payment_id=data.get('payment_id') or f"PAY-{uuid.uuid4().hex[:12].upper()}",
+            payment_method=data.get('payment_method', 'simulated'),
+            amount_id=str(order_total),
+            status='Completed'
+        )
+
+        # Crear Order
+        order = Order.objects.create(
+            user=request.user,
+            payment=payment,
+            order_number=self.generate_order_number(),
+            first_name=data['first_name'],
+            last_name=data['last_name'],
+            phone=data['phone'],
+            email=data['email'],
+            address_line_1=data['address_line_1'],
+            address_line_2=data.get('address_line_2', ''),
+            country=data['country'],
+            city=data['city'],
+            state=data['state'],
+            order_note=data.get('order_note', ''),
+            order_total=order_total,
+            tax=tax,
+            status='New',
+            is_ordered=True,
+            ip=request.META.get('REMOTE_ADDR', '127.0.0.1')
+        )
+
+        # Crear OrderProducts
+        for op in order_products:
+            OrderProduct.objects.create(
+                order=order,
+                payment=payment,
+                user=request.user,
+                product=op['product'],
+                quantity=op['quantity'],
+                product_price=op['price'],
+                ordered=True
+            )
+
+        return Response({
+            "success": True,
+            "message": "Pedido creado con éxito",
+            "order_id": order.id,
+            "order_number": order.order_number,
+            "order_total": float(order_total)
+        }, status=status.HTTP_201_CREATED)
+
+
+# Ver pedidos del usuario
+class UserOrdersView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        from orders.serializers import OrderSerializer
+        from orders.models import Order
+
+        orders = Order.objects.filter(user=request.user).order_by('-created_at')
+        serializer = OrderSerializer(orders, many=True)
+        
+        return Response({
+            "orders": serializer.data
+        }, status=status.HTTP_200_OK)

@@ -21,6 +21,8 @@ urlpatterns = [
     path('register_user/',Register_user.as_view(),name="register_user"),
     path('productosPorCategorias/<int:pk>/',ProductByCategory.as_view(),name="productosPorCategorias"),
     path('users/me/', CurrentUserView.as_view(), name='current_user'),
+    path('orders/create/', CreateOrderView.as_view(), name='create_order'),
+    path('orders/my-orders/', UserOrdersView.as_view(), name='user_orders'),
     path('test/', lambda request: Response({"message": "API funcionando correctamente"}), name='test_api')
 ]
 
