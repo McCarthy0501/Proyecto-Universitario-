@@ -20,10 +20,17 @@ urlpatterns = [
     path('admin/aggProduct/',AggProduct.as_view(),name="aggProduct"),
     path('register_user/',Register_user.as_view(),name="register_user"),
     path('productosPorCategorias/<int:pk>/',ProductByCategory.as_view(),name="productosPorCategorias"),
-    path('users/me/', CurrentUserView.as_view(), name='current_user'),
+    path('user/me/', CurrentUserView.as_view(), name='current_user'),
     path('orders/create/', CreateOrderView.as_view(), name='create_order'),
     path('orders/my-orders/', UserOrdersView.as_view(), name='user_orders'),
-    path('test/', lambda request: Response({"message": "API funcionando correctamente"}), name='test_api')
+    path('test/', lambda request: Response({"message": "API funcionando correctamente"}), name='test_api'),
+    
+    # Nuevos endpoints
+    path('productos/<int:pk>/detalle/', ProductDetailView.as_view(), name='product_detail'),
+    path('productos/<int:pk>/reviews/', ProductReviewsView.as_view(), name='product_reviews'),
+    path('productos/<int:pk>/crear-review/', CreateReviewView.as_view(), name='create_review'),
+    path('productos/buscar/', ProductSearchView.as_view(), name='product_search'),
+    path('productos/<int:pk>/relacionados/', RelatedProductsView.as_view(), name='related_products'),
 ]
 
 urlpatterns += [

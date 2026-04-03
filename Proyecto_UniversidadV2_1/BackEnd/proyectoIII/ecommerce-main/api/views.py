@@ -19,8 +19,8 @@ from accounts.models import Account
 from accounts.serializers import AdminsSerializer
 from accounts.User_serializers import UserSerializer
 from category.serializers import CategorySerializer
-from store.models import Product
-from store.serializers import ProductSerializer
+from store.models import Product, Variation, ReviewRating, ProductGallery
+from store.serializers import ProductSerializer, VariationSerializer, ReviewRatingSerializer, ProductGallerySerializer, ProductDetailSerializer
 from category.models import Category
 from orders.models import Order
 from orders.serializers import OrderSerializer
@@ -281,9 +281,13 @@ class CurrentUserView(APIView):
             print(f"🔍 Usuario autenticado: {user.email}")
             return Response({
                 "id": user.id,
+                "username": user.username,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
                 "email": user.email,
+                "is_staff": user.is_staff,
+                "is_admin": user.is_admin,
+                "is_superadmin": user.is_superadmin,
             })
         except Exception as e:
             print(f"❌ Error en CurrentUserView: {e}")
@@ -395,3 +399,136 @@ class UserOrdersView(APIView):
         return Response({
             "orders": serializer.data
         }, status=status.HTTP_200_OK)
+
+
+# Detalle de producto con variaciones y galería
+class ProductDetailView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, pk, format=None):
+        try:
+            product = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            return Response({"detail": "Producto no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = ProductDetailSerializer(product, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# Obtener reviews de un producto
+class ProductReviewsView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, pk, format=None):
+        reviews = ReviewRating.objects.filter(product=pk, status=True).order_by('-created_at')
+        serializer = ReviewRatingSerializer(reviews, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# Crear review (solo usuarios autenticados)
+class CreateReviewView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk, format=None):
+        try:
+            product = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            return Response({"detail": "Producto no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+        rating = request.data.get('rating')
+        subject = request.data.get('subject', '')
+        review = request.data.get('review', '')
+        ip = request.META.get('REMOTE_ADDR', '127.0.0.1')
+
+        if not rating:
+            return Response({"error": "El rating es obligatorio"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Verificar si el usuario ya hizo review de este producto
+        existing_review = ReviewRating.objects.filter(product=product, user=request.user).first()
+        
+        if existing_review:
+            # Actualizar review existente
+            existing_review.rating = rating
+            existing_review.subject = subject
+            existing_review.review = review
+            existing_review.ip = ip
+            existing_review.save()
+            return Response({"message": "Review actualizada correctamente"}, status=status.HTTP_200_OK)
+
+        # Crear nueva review
+        ReviewRating.objects.create(
+            product=product,
+            user=request.user,
+            subject=subject,
+            review=review,
+            rating=rating,
+            ip=ip,
+            status=True
+        )
+
+        return Response({"message": "Review creada correctamente"}, status=status.HTTP_201_CREATED)
+
+
+# Búsqueda avanzada de productos
+class ProductSearchView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, format=None):
+        from django.db.models import Q
+        
+        query = request.query_params.get('q', '')
+        category_id = request.query_params.get('category', None)
+        min_price = request.query_params.get('min_price', None)
+        max_price = request.query_params.get('max_price', None)
+        sort = request.query_params.get('sort', '-created_date')
+        is_available = request.query_params.get('is_available', None)
+
+        products = Product.objects.all()
+
+        # Búsqueda por nombre o descripción
+        if query:
+            products = products.filter(
+                Q(product_name__icontains=query) | 
+                Q(description__icontains=query)
+            )
+
+        # Filtro por categoría
+        if category_id:
+            products = products.filter(category_id=category_id)
+
+        # Filtro por rango de precio
+        if min_price:
+            products = products.filter(price__gte=min_price)
+        if max_price:
+            products = products.filter(price__lte=max_price)
+
+        # Filtro por disponibilidad
+        if is_available is not None:
+            products = products.filter(is_available=is_available.lower() == 'true')
+
+        # Ordenamiento
+        if sort == 'price_asc':
+            products = products.order_by('price')
+        elif sort == 'price_desc':
+            products = products.order_by('-price')
+        elif sort == 'name':
+            products = products.order_by('product_name')
+        else:
+            products = products.order_by('-created_date')
+
+        serializer = ProductSerializer(products, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# Productos relacionados (misma categoría)
+class RelatedProductsView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, pk, format=None):
+        try:
+            product = Product.objects.get(pk=pk)
+            related = Product.objects.filter(category=product.category).exclude(pk=pk)[:4]
+            serializer = ProductSerializer(related, many=True, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Product.DoesNotExist:
+            return Response({"detail": "Producto no encontrado"}, status=status.HTTP_404_NOT_FOUND)

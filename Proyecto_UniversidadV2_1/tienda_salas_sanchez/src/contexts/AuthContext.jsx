@@ -23,7 +23,7 @@ const AuthProvider = ({ children }) => {
   const fetchUserInfo = async (token) => {
     try {
       console.log('🔍 Obteniendo información del usuario...');
-      const response = await fetch('http://localhost:8000/api/users/me/', {
+      const response = await fetch('http://localhost:8000/api/user/me/', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',

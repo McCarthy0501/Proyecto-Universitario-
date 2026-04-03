@@ -4,6 +4,7 @@ import { User, Mail, Phone, MapPin, ShoppingBag, Settings, Edit, LogOut } from '
 import { useNavigate } from 'react-router-dom'
 import EditProfileForm from '../../components/formularios/editProfileForm'
 import ChangePasswordForm from '../../components/formularios/changePasswordForm'
+import toast from 'react-hot-toast'
 
 export default function MiCuenta(){
     const { user, logout, refreshUserInfo } = useAuth()
@@ -26,7 +27,7 @@ export default function MiCuenta(){
         // Probar diferentes URLs para debug
         const urls = [
             'http://localhost:8000/api/test/',  // Endpoint de prueba sin autenticación
-            'http://localhost:8000/api/users/me/',
+            'http://localhost:8000/api/user/me/',
             'http://localhost:8000/api/current-user/',
             'http://localhost:8000/users/me/',
             'http://localhost:8000/api/token/',  // Para verificar si el servidor responde
@@ -61,7 +62,7 @@ export default function MiCuenta(){
 
     const handleLogout = () => {
         logout()
-        alert("Sesión cerrada con éxito!")
+        toast.success("Sesión cerrada. ¡Hasta pronto!")
         navigate('/')
     }
 

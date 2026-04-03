@@ -4,6 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { Trash2, Plus, Minus, ShoppingBag, CreditCard, CheckCircle, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 
 function CartPage() {
   const { 
@@ -83,13 +84,14 @@ function CartPage() {
       setOrderResult(data);
       setStep(3);
       clearCart();
-      
+      toast.success("¡Pedido confirmado! Gracias por tu compra");
     } catch (err) {
       setError(err.message);
+      toast.error(err.message || "Error al procesar el pedido");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   if (cartItems.length === 0) {
     return (
@@ -151,7 +153,10 @@ function CartPage() {
                     Carrito de Compras ({getTotalItems()} productos)
                   </h1>
                   <button
-                    onClick={clearCart}
+                    onClick={() => {
+                      clearCart();
+                      toast.success("Carrito vaciado");
+                    }}
                     className="text-red-600 hover:text-red-800 font-medium"
                   >
                     Limpiar Carrito
@@ -191,7 +196,10 @@ function CartPage() {
                         </p>
                       </div>
                       <button
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => {
+                          removeFromCart(item.id);
+                          toast.success("Producto eliminado");
+                        }}
                         className="text-red-600 hover:text-red-800"
                       >
                         <Trash2 className="w-5 h-5" />

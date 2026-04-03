@@ -21,7 +21,8 @@ function FormAdmin() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/admin/login/", {
+      // Paso 1: Obtener token JWT
+      const response = await fetch("http://localhost:8000/api/token/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -32,18 +33,34 @@ function FormAdmin() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Credenciales inválidas");
+        throw new Error(result.detail || "Credenciales inválidas");
       }
 
+      // Paso 2: Obtener datos del usuario
+      const userResponse = await fetch("http://localhost:8000/api/user/me/", {
+        headers: {
+          'Authorization': `Bearer ${result.access}`,
+        },
+      });
+
+      const userData = await userResponse.json();
+      console.log("User data:", userData);
+
+      // Paso 3: Verificar is_staff
+      if (!userData.is_staff) {
+        throw new Error("No tienes acceso al panel de administración");
+      }
+
+      // Paso 4: Guardar sesión
       login({
-        id: result.user.id,
-        username: result.user.username,
-        email: result.user.email,
-        first_name: result.user.first_name,
-        last_name: result.user.last_name,
-        is_staff: result.user.is_staff,
-        is_admin: result.user.is_admin
-      }, "admin-token");
+        id: userData.id,
+        username: userData.username,
+        email: userData.email,
+        first_name: userData.first_name,
+        last_name: userData.last_name,
+        is_staff: userData.is_staff,
+        is_admin: userData.is_admin
+      }, result.access);
 
       navigate("/adminPanel");
 

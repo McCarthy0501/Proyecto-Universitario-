@@ -134,7 +134,7 @@ function AggProducts() {
       formdata.append("category", data.category);
       formdata.append("is_available", data.is_available);
 
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('accessToken');
       const url = "http://localhost:8000/api/admin/aggProduct/";
       
       try {

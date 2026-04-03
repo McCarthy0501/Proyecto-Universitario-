@@ -1,8 +1,9 @@
 // src/components/forms/LoginForm.jsx
 import  { useState } from 'react';
-import {LogoForm} from '../header/logo'; // Asegúrate de que la ruta sea correcta
+import {LogoForm} from '../header/logo';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import toast from 'react-hot-toast';
 {/* creamos la funcion y el estado incial del formulario, 
   el campo email y password seran cadenas vacias  */}
 function LoginForm() {
@@ -29,7 +30,7 @@ function LoginForm() {
     e.preventDefault();
     
     if (!formData.email || !formData.password) {
-      alert("Todos los campos son obligatorios");
+      toast.error("Todos los campos son obligatorios");
       return;
     }
 
@@ -58,18 +59,16 @@ function LoginForm() {
         });
         
         // Mostrar mensaje de éxito y navegar inmediatamente
-        // El token está guardado, así que el usuario puede continuar
-        // Si refreshUserInfo aún está ejecutándose, se completará en segundo plano
-        alert("Inicio de sesión exitoso 🔥");
+        toast.success("¡Bienvenido! Has iniciado sesión");
         navegar("/");
       }else {
-        alert(data.detail || "Email o contraseña incorrectos ❌");
+        toast.error(data.detail || "Email o contraseña incorrectos");
       }
       
       
     } catch (error) {
       console.error(error);
-      alert("Error al iniciar sesión ❌");
+      toast.error("Error al iniciar sesión");
       
     }
     console.log('Datos del formulario de inicio de sesión:', formData);
