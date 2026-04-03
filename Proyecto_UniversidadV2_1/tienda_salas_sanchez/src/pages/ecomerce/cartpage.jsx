@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useCart } from "../../contexts/CartContext";
 import { useAuth } from "../../contexts/AuthContext";
-import { Trash2, Plus, Minus, ShoppingBag, CreditCard, CheckCircle, Loader2 } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingBag, CreditCard, CheckCircle, Loader2, Wallet, Building2, Banknote } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from 'react-hot-toast';
@@ -21,10 +21,11 @@ function CartPage() {
   const { user, token, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   
-  const [step, setStep] = useState(1); // 1: Carrito, 2: Datos envío, 3: Confirmación
+  const [step, setStep] = useState(1); // 1: Carrito, 2: Datos envío, 3: Método pago, 4: Confirmación
   const [loading, setLoading] = useState(false);
   const [orderResult, setOrderResult] = useState(null);
   const [error, setError] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('simulated');
   
   const [formData, setFormData] = useState({
     first_name: user?.first_name || '',
@@ -62,6 +63,16 @@ function CartPage() {
         quantity: item.quantity
       }));
 
+      const paymentMethodLabels = {
+        'simulated': 'Pago con Tarjeta',
+        'transfer': 'Transferencia Bancaria',
+        'cash': 'Contra Entrega'
+      };
+
+      const getPaymentMethodLabel = () => {
+        return paymentMethodLabels[paymentMethod] || paymentMethod;
+      };
+
       const response = await fetch('http://localhost:8000/api/orders/create/', {
         method: 'POST',
         headers: {
@@ -71,7 +82,7 @@ function CartPage() {
         body: JSON.stringify({
           ...formData,
           products_data: productsData,
-          payment_method: 'simulated'
+          payment_method: paymentMethodLabels[paymentMethod] || 'Simulado'
         })
       });
 
@@ -82,7 +93,7 @@ function CartPage() {
       }
 
       setOrderResult(data);
-      setStep(3);
+      setStep(4);
       clearCart();
       toast.success("¡Pedido confirmado! Gracias por tu compra");
     } catch (err) {
@@ -132,14 +143,19 @@ function CartPage() {
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}>1</div>
             <span className="ml-2 font-medium">Carrito</span>
           </div>
-          <div className="w-16 h-1 bg-gray-300"></div>
+          <div className="w-10 h-1 bg-gray-300"></div>
           <div className={`flex items-center ${step >= 2 ? 'text-blue-600' : 'text-gray-400'}`}>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}>2</div>
             <span className="ml-2 font-medium">Envío</span>
           </div>
-          <div className="w-16 h-1 bg-gray-300"></div>
+          <div className="w-10 h-1 bg-gray-300"></div>
           <div className={`flex items-center ${step >= 3 ? 'text-blue-600' : 'text-gray-400'}`}>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}>3</div>
+            <span className="ml-2 font-medium">Pago</span>
+          </div>
+          <div className="w-10 h-1 bg-gray-300"></div>
+          <div className={`flex items-center ${step >= 4 ? 'text-blue-600' : 'text-gray-400'}`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 4 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}>4</div>
             <span className="ml-2 font-medium">Confirmado</span>
           </div>
         </div>
@@ -376,6 +392,95 @@ function CartPage() {
                   Volver
                 </button>
                 <button
+                  onClick={() => setStep(3)}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center"
+                >
+                  <Wallet className="w-5 h-5 mr-2" />
+                  Seleccionar Método de Pago
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Método de Pago</h2>
+              
+              <div className="space-y-4 mb-6">
+                <div 
+                  onClick={() => setPaymentMethod('simulated')}
+                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${paymentMethod === 'simulated' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
+                >
+                  <div className="flex items-center">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'simulated' ? 'border-blue-600 bg-blue-600' : 'border-gray-300'}`}>
+                      {paymentMethod === 'simulated' && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="font-semibold text-gray-900">Pago con Tarjeta (Simulado)</h3>
+                      <p className="text-sm text-gray-500">Visa, Mastercard -Modo prueba-</p>
+                    </div>
+                    <CreditCard className="w-6 h-6 ml-auto text-gray-400" />
+                  </div>
+                </div>
+
+                <div 
+                  onClick={() => setPaymentMethod('transfer')}
+                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${paymentMethod === 'transfer' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
+                >
+                  <div className="flex items-center">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'transfer' ? 'border-blue-600 bg-blue-600' : 'border-gray-300'}`}>
+                      {paymentMethod === 'transfer' && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="font-semibold text-gray-900">Transferencia Bancaria</h3>
+                      <p className="text-sm text-gray-500">Transferir a nuestra cuenta</p>
+                    </div>
+                    <Building2 className="w-6 h-6 ml-auto text-gray-400" />
+                  </div>
+                </div>
+
+                <div 
+                  onClick={() => setPaymentMethod('cash')}
+                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${paymentMethod === 'cash' ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
+                >
+                  <div className="flex items-center">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'cash' ? 'border-blue-600 bg-blue-600' : 'border-gray-300'}`}>
+                      {paymentMethod === 'cash' && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="font-semibold text-gray-900">Contra Entrega</h3>
+                      <p className="text-sm text-gray-500">Pagas cuando recibes</p>
+                    </div>
+                    <Banknote className="w-6 h-6 ml-auto text-gray-400" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                <div className="flex justify-between mb-2">
+                  <span>Subtotal:</span>
+                  <span>${getSubtotal().toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between mb-2">
+                  <span>IVA (16%):</span>
+                  <span>${getTax().toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-lg font-bold border-t pt-2">
+                  <span>Total a pagar:</span>
+                  <span className="text-blue-600">${getTotal().toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => setStep(2)}
+                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-4 rounded-lg"
+                >
+                  Volver
+                </button>
+                <button
                   onClick={handlePlaceOrder}
                   disabled={loading}
                   className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center"
@@ -397,7 +502,7 @@ function CartPage() {
           </div>
         )}
 
-        {step === 3 && orderResult && (
+        {step === 4 && orderResult && (
           <div className="max-w-2xl mx-auto">
             <motion.div 
               initial={{ scale: 0.8, opacity: 0 }}
@@ -411,9 +516,13 @@ function CartPage() {
               </div>
               <h2 className="text-3xl font-bold text-gray-900 mb-4">¡Pedido Confirmado!</h2>
               <p className="text-gray-600 mb-2">Tu pedido ha sido creado exitosamente.</p>
-              <div className="bg-gray-100 p-4 rounded-lg mb-6">
+              <div className="bg-gray-100 p-4 rounded-lg mb-4">
                 <p className="text-sm text-gray-600">Número de orden:</p>
                 <p className="text-xl font-bold text-blue-600">{orderResult.order_number}</p>
+              </div>
+              <div className="bg-gray-100 p-4 rounded-lg mb-6">
+                <p className="text-sm text-gray-600">Método de pago:</p>
+                <p className="text-lg font-semibold text-gray-900">{getPaymentMethodLabel()}</p>
               </div>
               <p className="text-lg font-semibold mb-6">
                 Total pagado: <span className="text-green-600">${orderResult.order_total?.toFixed(2)}</span>
