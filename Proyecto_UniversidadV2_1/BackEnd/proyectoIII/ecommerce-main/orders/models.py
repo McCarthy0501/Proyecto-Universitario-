@@ -36,7 +36,7 @@ class Order(models.Model):
     address_line_2 = models.CharField(max_length=100)
     country = models.CharField(max_length=50)  # Agregado mio
     city = models.CharField(max_length=50)  # Agregado mio
-    state = models.CharField(max_length=5)  # QUE ES CODIGO POSTAL EN CHECKOUT.HTML
+    state = models.CharField(max_length=50)  # QUE ES CODIGO POSTAL EN CHECKOUT.HTML
     order_note = models.CharField(max_length=100, blank=True)
     order_total = models.FloatField()
     tax = models.FloatField()

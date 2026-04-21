@@ -82,7 +82,7 @@ function EditProfileForm({ onClose, onUpdate }) {
         formDataToSend.append('profile_picture', profilePicture);
       }
 
-      const response = await fetch('http://localhost:8000/api/users/me/', {
+      const response = await fetch('http://localhost:8000/api/user/me/', {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,

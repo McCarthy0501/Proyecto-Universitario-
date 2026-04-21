@@ -1,57 +1,83 @@
 
+
 import { useState } from 'react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Plus, Minus, Trash2, Eye } from 'lucide-react';
-import ProductPreviewModal from '../productPreviewModal';
+import { ShoppingCart, Plus, Minus, Trash2, Eye, Star } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 function ProductCard({product}) {
     const { addToCart, removeFromCart, updateQuantity, isInCart, getProductQuantity } = useCart();
     const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
     const [quantity, setQuantity] = useState(1);
-    const [showPreview, setShowPreview] = useState(false);
     const isProductInCart = isInCart(product.id);
     const cartQuantity = getProductQuantity(product.id);
     
-    // Coordinación de stocks con backend
     const stock = product.stock || 0;
     const isAvailable = stock > 0;
     const stockText = isAvailable ? `Disponible (${stock})` : 'No disponible';
     const stockClass = isAvailable ? 'text-green-600' : 'text-red-600';
+    const averageRating = product.average_rating || 0;
+    const reviewCount = product.review_count || 0;
 
-    const handleAddToCart = () => {
+    const handleAddToCart = (e) => {
+        e.stopPropagation();
         if (!isAuthenticated) {
-            alert('Debes iniciar sesión para agregar productos al carrito');
+            toast.error('Debes iniciar sesión para agregar productos al carrito');
             navigate('/login');
             return;
         }
         addToCart(product, quantity);
+        toast.success(`${product.product_name} agregado al carrito`);
     };
 
-    const handleRemoveFromCart = () => {
+    const handleRemoveFromCart = (e) => {
+        e.stopPropagation();
         removeFromCart(product.id);
+        toast.success('Producto eliminado del carrito');
     };
 
-    const handleUpdateQuantity = (newQuantity) => {
+    const handleUpdateQuantity = (newQuantity, e) => {
+        if (e) e.stopPropagation();
         if (!isAuthenticated) {
-            alert('Debes iniciar sesión para modificar el carrito');
+            toast.error('Debes iniciar sesión para modificar el carrito');
             navigate('/login');
             return;
         }
         if (newQuantity <= 0) {
             removeFromCart(product.id);
+            toast.success('Producto eliminado del carrito');
         } else {
             updateQuantity(product.id, newQuantity);
         }
     };
 
+    const handleCardClick = () => {
+        navigate(`/producto/${product.id}`);
+    };
+
+    const renderStars = (rating) => (
+        <div className="flex items-center">
+            {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                    key={star}
+                    size={12}
+                    fill={star <= Math.round(rating) ? "#fbbf24" : "transparent"}
+                    stroke={star <= Math.round(rating) ? "#fbbf24" : "#d1d5db"}
+                />
+            ))}
+        </div>
+    );
+
     return (
       <>
-        <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden">
-          {/* Imagen clickeable para vista previa */}
-          <div className="relative cursor-pointer" onClick={() => setShowPreview(true)}>
+        <div 
+            className="bg-white rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden cursor-pointer"
+            onClick={handleCardClick}
+        >
+          <div className="relative">
             <img
               src={product.images}
               alt={product.product_name}
@@ -62,28 +88,33 @@ function ProductCard({product}) {
             </div>
           </div>
           <div className="p-6">
-            <h3 
-              className="text-2xl font-bold text-gray-900 mb-2 truncate cursor-pointer hover:text-blue-600 transition-colors"
-              onClick={() => setShowPreview(true)}
-            >
+            <h3 className="text-xl font-bold text-gray-900 mb-2 truncate hover:text-blue-600 transition-colors">
               {product.product_name}
             </h3>
-            <p className="text-lg font-semibold text-indigo-600 mb-2">
-              <span className="text-sm font-normal text-gray-500">Precio:</span> $
-              {product.price}
-            </p>
-            <p className="text-gray-700 text-sm mb-4 line-clamp-3">
+            
+            <div className="flex items-center justify-between mb-2">
+                <p className="text-xl font-semibold text-indigo-600">
+                    ${product.price}
+                </p>
+                {reviewCount > 0 && (
+                    <div className="flex items-center gap-1">
+                        {renderStars(averageRating)}
+                        <span className="text-xs text-gray-500">({reviewCount})</span>
+                    </div>
+                )}
+            </div>
+            
+            <p className="text-gray-700 text-sm mb-4 line-clamp-2">
               {product.description}
             </p>
             <p className={`text-sm font-semibold mb-4 ${stockClass}`}>
               {stockText}
             </p>
 
-            {/* Controles del carrito */}
             {isAvailable ? (
               !isProductInCart ? (
                 <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       className="p-2 bg-gray-200 hover:bg-gray-300 rounded-full transition-colors"
@@ -105,13 +136,6 @@ function ProductCard({product}) {
                     <ShoppingCart className="w-5 h-5" />
                     <span>Agregar al Carrito</span>
                   </button>
-                  <button
-                    onClick={() => setShowPreview(true)}
-                    className="w-full flex items-center justify-center space-x-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-lg transition-colors"
-                  >
-                    <Eye className="w-5 h-5" />
-                    <span>Ver Detalles</span>
-                  </button>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -126,54 +150,31 @@ function ProductCard({product}) {
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
                     <button
-                      onClick={() => handleUpdateQuantity(cartQuantity - 1)}
+                      onClick={(e) => handleUpdateQuantity(cartQuantity - 1, e)}
                       className="p-2 bg-gray-200 hover:bg-gray-300 rounded-full transition-colors"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
                     <span className="w-8 text-center font-medium">{cartQuantity}</span>
                     <button
-                      onClick={() => handleUpdateQuantity(cartQuantity + 1)}
+                      onClick={(e) => handleUpdateQuantity(cartQuantity + 1, e)}
                       disabled={cartQuantity >= stock}
                       className="p-2 bg-gray-200 hover:bg-gray-300 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
-                  <button
-                    onClick={() => setShowPreview(true)}
-                    className="w-full flex items-center justify-center space-x-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-lg transition-colors"
-                  >
-                    <Eye className="w-5 h-5" />
-                    <span>Ver Detalles</span>
-                  </button>
                 </div>
               )
             ) : (
-              <div className="space-y-3">
-                <div className="bg-red-50 p-4 rounded-lg text-center">
-                  <p className="text-red-800 font-medium mb-2">Producto no disponible</p>
-                </div>
-                <button
-                  onClick={() => setShowPreview(true)}
-                  className="w-full flex items-center justify-center space-x-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-lg transition-colors"
-                >
-                  <Eye className="w-5 h-5" />
-                  <span>Ver Detalles</span>
-                </button>
+              <div className="bg-red-50 p-4 rounded-lg text-center">
+                <p className="text-red-800 font-medium">Producto no disponible</p>
               </div>
             )}
           </div>
         </div>
-        
-        {/* Modal de vista previa */}
-        <ProductPreviewModal
-          product={product}
-          isOpen={showPreview}
-          onClose={() => setShowPreview(false)}
-        />
       </>
     );
 }

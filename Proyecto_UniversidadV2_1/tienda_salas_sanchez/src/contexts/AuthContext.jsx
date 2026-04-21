@@ -6,15 +6,14 @@ const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
-    // Verificamos si hay un token almacenado al cargar la aplicación
     const token = localStorage.getItem('accessToken');
     if (token) {
-      // Solo hacer la petición si el token existe
+      setToken(token);
       fetchUserInfo(token);
     } else {
-      // Si no hay token, marcar como no autenticado
       setIsAuthenticated(false);
       setUser(null);
       setLoading(false);
@@ -24,7 +23,7 @@ const AuthProvider = ({ children }) => {
   const fetchUserInfo = async (token) => {
     try {
       console.log('🔍 Obteniendo información del usuario...');
-      const response = await fetch('http://localhost:8000/api/users/me/', {
+      const response = await fetch('http://localhost:8000/api/user/me/', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -82,7 +81,8 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = (userData) => {
+  const login = (userData, accessToken) => {
+    setToken(accessToken);
     setIsAuthenticated(true);
     setUser(userData);
   };
@@ -90,6 +90,7 @@ const AuthProvider = ({ children }) => {
   const refreshUserInfo = async () => {
     const token = localStorage.getItem('accessToken');
     if (token) {
+      setToken(token);
       await fetchUserInfo(token);
     }
   };
@@ -98,6 +99,7 @@ const AuthProvider = ({ children }) => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('userEmail');
+    setToken(null);
     setIsAuthenticated(false);
     setUser(null);
   };
@@ -113,6 +115,7 @@ const AuthProvider = ({ children }) => {
   const value = {
     isAuthenticated,
     user,
+    token,
     loading,
     login,
     logout,

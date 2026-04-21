@@ -28,16 +28,25 @@ function AggCategory() {
     const categorySubmit=async(e)=>{
        e.preventDefault();
        setError("");
+       
+       const adminToken = localStorage.getItem("adminToken");
+       const accessToken = localStorage.getItem("accessToken");
+       const token = adminToken || accessToken;
+       
        const formData = new FormData();
         formData.append("category_name", data.category_name);
         formData.append("slug", data.slug);
         formData.append("description", data.description);
-        formData.append("cat_image", data.cat_image); 
+        if (data.cat_image) {
+            formData.append("cat_image", data.cat_image); 
+        }
        const url="http://localhost:8000/api/admin/aggCategory/"
        try {
         const solicitud=await fetch(url,{
             method: "POST",
-           //cuando hay imagenes o archivos de por medio se coloca asi nada de json al enviar
+            headers: {
+                'Authorization': token ? `Bearer ${token}` : '',
+            },
             body: formData,
           });
           if(!solicitud.ok){

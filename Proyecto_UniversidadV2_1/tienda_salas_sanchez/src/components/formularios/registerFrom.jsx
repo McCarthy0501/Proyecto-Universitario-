@@ -2,7 +2,7 @@
 import  { useState } from 'react';
 import {LogoForm} from"../header/logo";
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import toast from 'react-hot-toast';
 function RegisterForm() {
   const [formData, setFormData] = useState({
     first_name: '',
@@ -20,17 +20,16 @@ function RegisterForm() {
   };
   //redireccion
   const navegar=useNavigate();
-  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     //validamos datos antes de enviarlos
     if (!formData.first_name || !formData.last_name || !formData.username  || !formData.password){
-      alert("Campos Obligatorios");
+      toast.error("Todos los campos son obligatorios");
       return;
     }
     if (formData.password != formData.confirm_password){
-      alert("contraseñas no coinciden");
+      toast.error("Las contraseñas no coinciden");
       return;
     }
 
@@ -45,30 +44,17 @@ function RegisterForm() {
       });
       const respuesta= await peticion.json();
       if (!peticion.ok){
-        alert(respuesta.message || "error al registrar el Usuario");
+        toast.error(respuesta.message || "Error al registrar el usuario");
         return;
       }
 
-      // Guardar JWT en localStorage
-      localStorage.setItem("accessToken", respuesta.access);
-      localStorage.setItem("refreshToken", respuesta.refresh);
-
-      // Actualizar el contexto de autenticación
-      login({ 
-        email: formData.email,
-        username: formData.username,
-        token: respuesta.access 
-      });
-
-      console.log("accessToken", respuesta.access);
-      console.log("refreshToken", respuesta.refresh);
-      
-      alert("Usuario registrado con exito !! ")
-      navegar('/')
+      // Solo mostrar mensaje de éxito, NO iniciar sesión automáticamente
+      toast.success("¡Registro exitoso! Por favor inicia sesión");
+      navegar('/login')
       
     } catch (error) {
       console.error(error);
-        alert(respuesta.message || "usuario registrado exitosamente");
+      toast.error("Error al registrar el usuario");
     };
 
   };
