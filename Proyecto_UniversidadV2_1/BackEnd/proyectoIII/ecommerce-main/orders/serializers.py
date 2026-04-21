@@ -42,11 +42,10 @@ class CreateOrderSerializer(serializers.Serializer):
     address_line_2 = serializers.CharField(max_length=100, required=False, allow_blank=True)
     country = serializers.CharField(max_length=50)
     city = serializers.CharField(max_length=50)
-    state = serializers.CharField(max_length=5)
+    state = serializers.CharField(max_length=50)
     order_note = serializers.CharField(max_length=100, required=False, allow_blank=True)
-    
-    payment_method = serializers.CharField(max_length=100, default='simulated')
+
+    payment_method = serializers.CharField(max_length=100, default='simulated', required=False)
     payment_id = serializers.CharField(max_length=100, required=False, allow_blank=True)
-    
-    products = serializers.ListField(child=serializers.IntegerField())
-    products_data = serializers.ListField(child=serializers.DictField())
+
+    products_data = serializers.ListField(child=serializers.DictField(), required=False)

@@ -8,7 +8,6 @@ router = routers.DefaultRouter()
 router.register(r'categorias',Categorylist,'categorias')
 router.register(r'productos',Productlist,'producto')
 router.register(r'users',MostrarUsers,'users')
-router.register(r'orders',MostrarOrder,'orders')
 
 router.register(r'edit_categorias', EditCategory, basename='edit_categorias')
 router.register(r'delete_categorias', DeleteCategory, basename='delete_categorias')
@@ -21,7 +20,9 @@ urlpatterns = [
     path('register_user/',Register_user.as_view(),name="register_user"),
     path('productosPorCategorias/<int:pk>/',ProductByCategory.as_view(),name="productosPorCategorias"),
     path('user/me/', CurrentUserView.as_view(), name='current_user'),
+    path('orders/', AllOrdersView.as_view(), name='all_orders'),
     path('orders/create/', CreateOrderView.as_view(), name='create_order'),
+    path('orders/<int:pk>/', UpdateOrderStatusView.as_view(), name='update_order_status'),
     path('orders/my-orders/', UserOrdersView.as_view(), name='user_orders'),
     path('test/', lambda request: Response({"message": "API funcionando correctamente"}), name='test_api'),
     

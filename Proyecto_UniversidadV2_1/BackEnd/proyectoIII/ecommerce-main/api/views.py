@@ -307,82 +307,128 @@ class CreateOrderView(APIView):
         return ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
 
     def post(self, request):
-        from orders.serializers import CreateOrderSerializer
-        from orders.models import Order, OrderProduct, Payment
-        from store.models import Product
+        try:
+            from orders.serializers import CreateOrderSerializer
+            from orders.models import Order, OrderProduct, Payment
+            from store.models import Product
 
-        serializer = CreateOrderSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            print("=== USUARIO AUTENTICADO ===")
+            print("User:", request.user)
+            print("Auth:", request.auth)
+            print("==========================")
 
-        data = serializer.validated_data
-        
-        # Calcular total
-        subtotal = 0
-        order_products = []
-        
-        for prod in data['products_data']:
-            product = Product.objects.get(id=prod['id'])
-            subtotal += product.price * prod['quantity']
-            order_products.append({
-                'product': product,
-                'quantity': prod['quantity'],
-                'price': product.price
-            })
+            print("=== DATOS RECIBIDOS ===")
+            print(request.data)
+            print("========================")
 
-        tax = subtotal * 0.16
-        order_total = subtotal + tax
+            serializer = CreateOrderSerializer(data=request.data)
+            if not serializer.is_valid():
+                print("=== ERROR SERIALIZER ===")
+                print(serializer.errors)
+                print("===========================")
+                return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Crear Payment (simulado)
-        payment = Payment.objects.create(
-            user=request.user,
-            payment_id=data.get('payment_id') or f"PAY-{uuid.uuid4().hex[:12].upper()}",
-            payment_method=data.get('payment_method', 'simulated'),
-            amount_id=str(order_total),
-            status='Completed'
-        )
+            data = serializer.validated_data
+            print("=== DATA VALIDADA ===")
+            print(data)
+            print("======================")
 
-        # Crear Order
-        order = Order.objects.create(
-            user=request.user,
-            payment=payment,
-            order_number=self.generate_order_number(),
-            first_name=data['first_name'],
-            last_name=data['last_name'],
-            phone=data['phone'],
-            email=data['email'],
-            address_line_1=data['address_line_1'],
-            address_line_2=data.get('address_line_2', ''),
-            country=data['country'],
-            city=data['city'],
-            state=data['state'],
-            order_note=data.get('order_note', ''),
-            order_total=order_total,
-            tax=tax,
-            status='New',
-            is_ordered=True,
-            ip=request.META.get('REMOTE_ADDR', '127.0.0.1')
-        )
+            products_data = data.get('products_data', [])
+            print("=== PRODUCTS DATA ===")
+            print(products_data)
+            print("=====================")
 
-        # Crear OrderProducts
-        for op in order_products:
-            OrderProduct.objects.create(
-                order=order,
-                payment=payment,
+            if not products_data:
+                return Response({"error": "No hay productos en el carrito"}, status=status.HTTP_400_BAD_REQUEST)
+
+            subtotal = 0
+            order_products = []
+
+            for prod in products_data:
+                prod_id = prod.get('id')
+                if not prod_id:
+                    continue
+                try:
+                    product = Product.objects.get(id=prod_id)
+                except Product.DoesNotExist:
+                    print(f"=== PRODUCTO NO ENCONTRADO: ID {prod_id} ===")
+                    return Response({"error": f"Producto con ID {prod_id} no encontrado"}, status=status.HTTP_400_BAD_REQUEST)
+
+                qty = prod.get('quantity', 1)
+                subtotal += product.price * qty
+                order_products.append({
+                    'product': product,
+                    'quantity': qty,
+                    'price': product.price
+                })
+
+            print("=== ORDER PRODUCTS ===")
+            print(order_products)
+            print("======================")
+
+            tax = subtotal * 0.16
+            order_total = subtotal + tax
+
+            payment = Payment.objects.create(
                 user=request.user,
-                product=op['product'],
-                quantity=op['quantity'],
-                product_price=op['price'],
-                ordered=True
+                payment_id=data.get('payment_id') or f"PAY-{uuid.uuid4().hex[:12].upper()}",
+                payment_method=data.get('payment_method', 'simulated'),
+                amount_id=str(order_total),
+                status='Completed'
             )
 
-        return Response({
-            "success": True,
-            "message": "Pedido creado con éxito",
-            "order_id": order.id,
-            "order_number": order.order_number,
-            "order_total": float(order_total)
-        }, status=status.HTTP_201_CREATED)
+            order = Order.objects.create(
+                user=request.user,
+                payment=payment,
+                order_number=self.generate_order_number(),
+                first_name=(data['first_name'][:50] if data['first_name'] else ''),
+                last_name=(data['last_name'][:50] if data['last_name'] else ''),
+                phone=(data['phone'][:50] if data['phone'] else ''),
+                email=(data['email'][:50] if data['email'] else ''),
+                address_line_1=(data['address_line_1'][:100] if data['address_line_1'] else ''),
+                address_line_2=(data.get('address_line_2', '')[:100] if data.get('address_line_2') else ''),
+                country=(data['country'][:50] if data['country'] else ''),
+                city=(data['city'][:50] if data['city'] else ''),
+                state=(data['state'][:50] if data['state'] else ''),
+                order_note=(data.get('order_note', '')[:100] if data.get('order_note') else ''),
+                order_total=order_total,
+                tax=tax,
+                status='New',
+                is_ordered=True,
+                ip=request.META.get('REMOTE_ADDR', '127.0.0.1')[:20]
+            )
+
+            for op in order_products:
+                OrderProduct.objects.create(
+                    order=order,
+                    payment=payment,
+                    user=request.user,
+                    product=op['product'],
+                    quantity=op['quantity'],
+                    product_price=op['price'],
+                    ordered=True
+                )
+
+            print("=== PEDIDO CREADO ===")
+            print("Order ID:", order.id)
+            print("Order Number:", order.order_number)
+            print("==================")
+
+            return Response({
+                "success": True,
+                "message": "Pedido creado con éxito",
+                "order_id": order.id,
+                "order_number": order.order_number,
+                "order_total": float(order_total)
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            print("=== ERROR EN CREATE ORDER ===")
+            print(str(e))
+            import traceback
+            traceback.print_exc()
+            print("=============================")
+            return Response({"error": f"Error interno: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # Ver pedidos del usuario
@@ -398,6 +444,52 @@ class UserOrdersView(APIView):
         
         return Response({
             "orders": serializer.data
+        }, status=status.HTTP_200_OK)
+
+
+# Ver todos los pedidos (para admin)
+class AllOrdersView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        from orders.serializers import OrderSerializer
+        from orders.models import Order
+
+        if not request.user.is_staff:
+            return Response({"error": "No autorizado"}, status=status.HTTP_403_FORBIDDEN)
+
+        orders = Order.objects.all().order_by('-created_at')
+        serializer = OrderSerializer(orders, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# Actualizar estado del pedido
+class UpdateOrderStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        from orders.models import Order
+
+        if not request.user.is_staff:
+            return Response({"error": "No autorizado"}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            order = Order.objects.get(pk=pk)
+        except Order.DoesNotExist:
+            return Response({"error": "Pedido no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+        new_status = request.data.get('status')
+        if new_status not in ['New', 'Accepted', 'Completed', 'Cancelled']:
+            return Response({"error": "Estado inválido"}, status=status.HTTP_400_BAD_REQUEST)
+
+        order.status = new_status
+        order.save()
+
+        return Response({
+            "success": True,
+            "message": f"Pedido {order.order_number} actualizado a {new_status}",
+            "status": new_status
         }, status=status.HTTP_200_OK)
 
 

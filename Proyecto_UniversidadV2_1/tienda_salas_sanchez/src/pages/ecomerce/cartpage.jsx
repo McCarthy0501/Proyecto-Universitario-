@@ -56,7 +56,7 @@ function CartPage() {
   const handlePlaceOrder = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const productsData = cartItems.map(item => ({
         id: item.id,
@@ -73,11 +73,19 @@ function CartPage() {
         return paymentMethodLabels[paymentMethod] || paymentMethod;
       };
 
+      const authToken = token || localStorage.getItem('accessToken');
+      console.log("=== TOKEN USADO ===", authToken);
+      console.log("=== USER ===", user);
+
+      if (!authToken) {
+        throw new Error("No has iniciado sesión. Por favor, inicia sesión para continuar.");
+      }
+
       const response = await fetch('http://localhost:8000/api/orders/create/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${authToken}`
         },
         body: JSON.stringify({
           ...formData,
@@ -87,9 +95,11 @@ function CartPage() {
       });
 
       const data = await response.json();
+      console.log("=== RESPUESTA ===", data);
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al crear el pedido');
+        const errorMsg = typeof data.error === 'object' ? JSON.stringify(data.error) : (data.error || 'Error al crear el pedido');
+        throw new Error(errorMsg);
       }
 
       setOrderResult(data);
@@ -97,6 +107,7 @@ function CartPage() {
       clearCart();
       toast.success("¡Pedido confirmado! Gracias por tu compra");
     } catch (err) {
+      console.error("=== ERROR ===", err);
       setError(err.message);
       toast.error(err.message || "Error al procesar el pedido");
     } finally {

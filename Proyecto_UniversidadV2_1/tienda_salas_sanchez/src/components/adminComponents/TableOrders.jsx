@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { Search, Eye, Package, MapPin, Calendar, DollarSign, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { Search, Package, MapPin, Calendar, CheckCircle, XCircle, Clock, Eye, ChevronDown, ChevronUp } from "lucide-react";
 
 export default function TableOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [expandedOrder, setExpandedOrder] = useState(null);
 
   useEffect(() => {
     fetchOrders();
@@ -22,7 +22,7 @@ export default function TableOrders() {
           'Content-Type': 'application/json',
         },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setOrders(data);
@@ -54,49 +54,83 @@ export default function TableOrders() {
     }
   };
 
+  const toggleOrderDetails = (orderId) => {
+    setExpandedOrder(expandedOrder === orderId ? null : orderId);
+  };
+
   const filteredOrders = orders.filter(order => {
-    const matchesSearch = !searchTerm || 
+    const matchesSearch = !searchTerm ||
       order.order_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.email?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesStatus = statusFilter === "all" || order.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
-  const getStatusBadge = (status) => {
+  const getStatusStyles = (status) => {
     switch (status) {
       case 'New':
-        return <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">Nuevo</span>;
+        return {
+          bg: 'bg-orange-100',
+          text: 'text-orange-800',
+          border: 'border-orange-300',
+          icon: 'text-orange-600',
+          label: 'Pendiente'
+        };
       case 'Accepted':
-        return <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">Aceptado</span>;
+        return {
+          bg: 'bg-green-100',
+          text: 'text-green-800',
+          border: 'border-green-300',
+          icon: 'text-green-600',
+          label: 'Aceptado'
+        };
       case 'Completed':
-        return <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">Completado</span>;
+        return {
+          bg: 'bg-blue-100',
+          text: 'text-blue-800',
+          border: 'border-blue-300',
+          icon: 'text-blue-600',
+          label: 'Completado'
+        };
       case 'Cancelled':
-        return <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold">Cancelado</span>;
+        return {
+          bg: 'bg-red-100',
+          text: 'text-red-800',
+          border: 'border-red-300',
+          icon: 'text-red-600',
+          label: 'Rechazado'
+        };
       default:
-        return <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">{status}</span>;
+        return {
+          bg: 'bg-gray-100',
+          text: 'text-gray-800',
+          border: 'border-gray-300',
+          icon: 'text-gray-600',
+          label: status
+        };
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'Completed':
-        return <CheckCircle className="w-5 h-5 text-green-600" />;
-      case 'Cancelled':
-        return <XCircle className="w-5 h-5 text-red-600" />;
       case 'Accepted':
-        return <AlertCircle className="w-5 h-5 text-yellow-600" />;
+        return <CheckCircle className="w-6 h-6" />;
+      case 'Cancelled':
+        return <XCircle className="w-6 h-6" />
+      case 'Completed':
+        return <Package className="w-6 h-6" />;
       default:
-        return <Clock className="w-5 h-5 text-blue-600" />;
+        return <Clock className="w-6 h-6" />;
     }
   };
 
   const stats = {
     total: orders.length,
-    new: orders.filter(o => o.status === 'New').length,
+    pending: orders.filter(o => o.status === 'New').length,
     accepted: orders.filter(o => o.status === 'Accepted').length,
     completed: orders.filter(o => o.status === 'Completed').length,
     cancelled: orders.filter(o => o.status === 'Cancelled').length,
@@ -132,10 +166,10 @@ export default function TableOrders() {
             className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">Todos los estados</option>
-            <option value="New">Nuevo</option>
+            <option value="New">Pendiente</option>
             <option value="Accepted">Aceptado</option>
             <option value="Completed">Completado</option>
-            <option value="Cancelled">Cancelado</option>
+            <option value="Cancelled">Rechazado</option>
           </select>
         </div>
       </div>
@@ -143,23 +177,23 @@ export default function TableOrders() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         <div className="bg-white rounded-lg shadow-md p-4">
-          <p className="text-sm text-gray-600">Total Órdenes</p>
+          <p className="text-sm text-gray-600">Total</p>
           <p className="text-2xl font-bold">{stats.total}</p>
         </div>
-        <div className="bg-white rounded-lg shadow-md p-4">
-          <p className="text-sm text-gray-600">Nuevas</p>
-          <p className="text-2xl font-bold text-blue-600">{stats.new}</p>
+        <div className="bg-orange-50 rounded-lg shadow-md p-4 border border-orange-200">
+          <p className="text-sm text-orange-700">Pendientes</p>
+          <p className="text-2xl font-bold text-orange-600">{stats.pending}</p>
         </div>
-        <div className="bg-white rounded-lg shadow-md p-4">
-          <p className="text-sm text-gray-600">Aceptadas</p>
-          <p className="text-2xl font-bold text-yellow-600">{stats.accepted}</p>
+        <div className="bg-green-50 rounded-lg shadow-md p-4 border border-green-200">
+          <p className="text-sm text-green-700">Aceptadas</p>
+          <p className="text-2xl font-bold text-green-600">{stats.accepted}</p>
         </div>
-        <div className="bg-white rounded-lg shadow-md p-4">
-          <p className="text-sm text-gray-600">Completadas</p>
-          <p className="text-2xl font-bold text-green-600">{stats.completed}</p>
+        <div className="bg-blue-50 rounded-lg shadow-md p-4 border border-blue-200">
+          <p className="text-sm text-blue-700">Completadas</p>
+          <p className="text-2xl font-bold text-blue-600">{stats.completed}</p>
         </div>
-        <div className="bg-white rounded-lg shadow-md p-4">
-          <p className="text-sm text-gray-600">Canceladas</p>
+        <div className="bg-red-50 rounded-lg shadow-md p-4 border border-red-200">
+          <p className="text-sm text-red-700">Rechazadas</p>
           <p className="text-2xl font-bold text-red-600">{stats.cancelled}</p>
         </div>
         <div className="bg-white rounded-lg shadow-md p-4">
@@ -168,94 +202,129 @@ export default function TableOrders() {
         </div>
       </div>
 
-      {/* Tabla */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="bg-gray-900 text-white">
-              <tr>
-                <th className="px-4 py-3 text-left">Orden</th>
-                <th className="px-4 py-3 text-left">Cliente</th>
-                <th className="px-4 py-3 text-left">Contacto</th>
-                <th className="px-4 py-3 text-left">Envío</th>
-                <th className="px-4 py-3 text-center">Total</th>
-                <th className="px-4 py-3 text-center">Estado</th>
-                <th className="px-4 py-3 text-left">Fecha</th>
-                <th className="px-4 py-3 text-center">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {filteredOrders.length > 0 ? (
-                filteredOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(order.status)}
-                        <div>
-                          <p className="font-semibold text-gray-900">{order.order_number}</p>
-                          <p className="text-xs text-gray-500">ID: {order.id}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-gray-900">{order.first_name} {order.last_name}</p>
-                    </td>
-                    <td className="px-4 py-3">
-                      <p className="text-sm text-gray-700">{order.email}</p>
-                      <p className="text-xs text-gray-500">{order.phone}</p>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-start gap-2">
-                        <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
-                        <div className="text-sm">
-                          <p className="text-gray-700">{order.address_line_1}</p>
-                          <p className="text-gray-500">{order.city}, {order.country}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <div>
-                        <p className="font-bold text-green-600">${parseFloat(order.order_total || 0).toFixed(2)}</p>
-                        <p className="text-xs text-gray-500">Tax: ${parseFloat(order.tax || 0).toFixed(2)}</p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      {getStatusBadge(order.status)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-700">
-                          {order.created_at ? new Date(order.created_at).toLocaleDateString() : 'N/A'}
+      {/* Lista de Órdenes */}
+      <div className="space-y-4">
+        {filteredOrders.length > 0 ? (
+          filteredOrders.map((order) => {
+            const statusStyle = getStatusStyles(order.status);
+            const products = order.orderproduct_set || [];
+
+            return (
+              <div key={order.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                {/* Header */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className={`p-2 rounded-full ${statusStyle.bg}`}>
+                        <span className={statusStyle.icon}>
+                          {getStatusIcon(order.status)}
                         </span>
                       </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2 justify-center">
-                        <select
-                          value={order.status}
-                          onChange={(e) => updateOrderStatus(order.id, e.target.value)}
-                          className="text-sm border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="New">Nuevo</option>
-                          <option value="Accepted">Aceptado</option>
-                          <option value="Completed">Completado</option>
-                          <option value="Cancelled">Cancelado</option>
-                        </select>
+                      <div>
+                        <p className="font-bold text-lg text-gray-900">{order.order_number}</p>
+                        <p className="text-sm text-gray-500">{order.first_name} {order.last_name}</p>
                       </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
-                    {searchTerm || statusFilter !== "all" ? 'No se encontraron órdenes' : 'No hay órdenes registradas'}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                    </div>
+
+                    <div className="flex items-center gap-6">
+                      <div className="text-right">
+                        <p className="text-sm text-gray-500">{order.email}</p>
+                        <p className="text-sm text-gray-500">{order.phone}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-xl text-green-600">${parseFloat(order.order_total || 0).toFixed(2)}</p>
+                        <p className="text-xs text-gray-500">IVA: ${parseFloat(order.tax || 0).toFixed(2)}</p>
+                      </div>
+                      <span className={`px-4 py-2 ${statusStyle.bg} ${statusStyle.text} rounded-full font-semibold`}>
+                        {statusStyle.label}
+                      </span>
+                      <button
+                        onClick={() => toggleOrderDetails(order.id)}
+                        className="p-2 hover:bg-gray-100 rounded-lg"
+                      >
+                        {expandedOrder === order.id ? <ChevronUp /> : <ChevronDown />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Detalles expandidos */}
+                {expandedOrder === order.id && (
+                  <div className="border-t bg-gray-50 p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Info envío */}
+                      <div>
+                        <h4 className="font-semibold text-gray-700 mb-2">Información de Envío</h4>
+                        <div className="flex items-start gap-2 text-sm text-gray-600">
+                          <MapPin className="w-4 h-4 mt-1" />
+                          <div>
+                            <p>{order.address_line_1}</p>
+                            <p>{order.address_line_2}</p>
+                            <p>{order.city}, {order.state}, {order.country}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
+                          <Calendar className="w-4 h-4" />
+                          <p>{order.created_at ? new Date(order.created_at).toLocaleString() : 'N/A'}</p>
+                        </div>
+                      </div>
+
+                      {/* Productos */}
+                      <div>
+                        <h4 className="font-semibold text-gray-700 mb-2">Productos</h4>
+                        <div className="space-y-2">
+                          {products.length > 0 ? (
+                            products.map((prod, idx) => (
+                              <div key={idx} className="flex items-center gap-3 bg-white p-2 rounded">
+                                <Package className="w-5 h-5 text-gray-400" />
+                                <div className="flex-1">
+                                  <p className="font-medium text-sm">{prod.product?.product_name || 'Producto'}</p>
+                                  <p className="text-xs text-gray-500">Cant: {prod.quantity} x ${prod.product_price}</p>
+                                </div>
+                                <p className="font-semibold text-sm">${(prod.quantity * prod.product_price).toFixed(2)}</p>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-sm text-gray-500">No hay productos</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Acciones */}
+                    <div className="mt-4 pt-4 border-t flex gap-3">
+                      <button
+                        onClick={() => updateOrderStatus(order.id, 'Accepted')}
+                        className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                      >
+                        <CheckCircle className="w-5 h-5" />
+                        Aceptar
+                      </button>
+                      <button
+                        onClick={() => updateOrderStatus(order.id, 'Cancelled')}
+                        className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+                      >
+                        <XCircle className="w-5 h-5" />
+                        Rechazar
+                      </button>
+                      <button
+                        onClick={() => updateOrderStatus(order.id, 'Completed')}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                      >
+                        <Package className="w-5 h-5" />
+                        Completar
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        ) : (
+          <div className="bg-white rounded-lg shadow-md p-8 text-center text-gray-500">
+            {searchTerm || statusFilter !== "all" ? 'No se encontraron órdenes' : 'No hay órdenes registradas'}
+          </div>
+        )}
       </div>
     </div>
   );
