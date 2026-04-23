@@ -162,29 +162,39 @@ class AggProduct(APIView):
     def post(self,request):
         if not request.user.is_staff:
             return Response({"error": "No autorizado"}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            product_name=request.data.get("product_name")
+            slug=request.data.get("slug")
+            description=request.data.get("description")
+            price=request.data.get("price")
+            images=request.FILES.get("images")
+            stock=request.data.get("stock")
+            category_id=request.data.get("category")
             
-        product_name=request.data.get("product_name")
-        slug=request.data.get("slug")
-        description=request.data.get("description")
-        price=request.data.get("price")
-        images=request.FILES.get("images")
-        stock=request.data.get("stock")
-        category_id=request.data.get("category")
-        category=Category.objects.get(id=category_id)
+            if not category_id:
+                return Response({"error": "La categoría es requerida"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            try:
+                category=Category.objects.get(id=category_id)
+            except Category.DoesNotExist:
+                return Response({"error": "La categoría no existe"}, status=status.HTTP_400_BAD_REQUEST)
 
-        Product.objects.create(
-            product_name=product_name,
-            slug=slug,
-            description=description,
-            price=price,
-            images=images,
-            stock=stock,
-            category=category
-        )
+            Product.objects.create(
+                product_name=product_name,
+                slug=slug,
+                description=description,
+                price=price,
+                images=images,
+                stock=stock,
+                category=category
+            )
 
-        return Response({
-            "message":"Producto creado con exito"
-        })
+            return Response({
+                "message":"Producto creado con exito"
+            })
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 #edita las categorias
 @method_decorator(csrf_exempt, name='dispatch')
