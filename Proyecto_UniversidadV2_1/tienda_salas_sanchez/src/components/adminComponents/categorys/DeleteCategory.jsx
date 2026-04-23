@@ -7,13 +7,18 @@ export default function DeleteCategory() {
     const {id}=useParams();
     const navegacion= useNavigate();
     const [delte, setdelete] = useState(null);
-    useEffect(()=>{
+useEffect(()=>{
+        const token = localStorage.getItem("adminToken") || localStorage.getItem("accessToken");
         const peticion= async ()=>{
             try {
-                const result= await fetch(`http://localhost:8000/api/delete_categorias/${id}/`);
+                const result= await fetch(`http://localhost:8000/api/delete_categorias/${id}/`, {
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : '',
+                    },
+                });
                 const data = await result.json();
                 setdelete(data);
-             
+              
             } catch (error) {
                 console.error(error);
                 
@@ -36,27 +41,30 @@ export default function DeleteCategory() {
 
     
 
-    //formulario
+//formulario
     const deleteCategorySubmit=async (e) =>{
          e.preventDefault();
-
+         const token = localStorage.getItem("adminToken") || localStorage.getItem("accessToken");
          
-        
-        try {
-            const solicitud = await fetch(`http://localhost:8000/api/delete_categorias/${id}/`,{
-                method: "DELETE",
-                
-            });
-            if (!solicitud.ok) {throw new Error("Error al eliminar la categoría");}
-            
-            alert("Se elimino la categoria con exito");
-            navegacion("/adminPanel");
+         
+         
+         try {
+             const solicitud = await fetch(`http://localhost:8000/api/delete_categorias/${id}/`,{
+                 method: "DELETE",
+                 headers: {
+                     'Authorization': token ? `Bearer ${token}` : '',
+                 },
+             });
+             if (!solicitud.ok) {throw new Error("Error al eliminar la categoría");}
+             
+             alert("Se elimino la categoria con exito");
+             navegacion("/adminPanel");
 
-            
-        } catch (error) {
-            console.log(error)
-            
-        }
+             
+         } catch (error) {
+             console.log(error)
+             
+         }
     }
     return (
         

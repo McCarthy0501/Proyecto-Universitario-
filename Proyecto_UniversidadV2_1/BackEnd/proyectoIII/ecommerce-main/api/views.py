@@ -137,13 +137,13 @@ class AggCategorys(APIView):
             return Response({"error": "No autorizado"}, status=status.HTTP_403_FORBIDDEN)
             
         category_name=request.data.get("category_name")
-        descritption=request.data.get("description")
+        description=request.data.get("description")
         category_slug=request.data.get("slug")
         cat_image=request.FILES.get("cat_image")
 
         Category.objects.create(
             category_name=category_name,
-            description=descritption,
+            description=description,
             slug=category_slug,
             cat_image=cat_image
 

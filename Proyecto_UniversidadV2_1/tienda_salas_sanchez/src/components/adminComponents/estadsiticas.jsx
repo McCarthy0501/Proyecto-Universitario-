@@ -35,7 +35,7 @@ function Estadistica() {
             // Obtener usuarios (si el endpoint existe)
             let usersData = [];
             try {
-                const token = localStorage.getItem('accessToken');
+                const token = localStorage.getItem("adminToken") || localStorage.getItem("accessToken");
                 const headers = {};
                 if (token) {
                     headers['Authorization'] = `Bearer ${token}`;
@@ -51,7 +51,7 @@ function Estadistica() {
             // Obtener órdenes (si el endpoint existe)
             let ordersData = [];
             try {
-                const token = localStorage.getItem('accessToken');
+                const token = localStorage.getItem("adminToken") || localStorage.getItem("accessToken");
                 const headers = {};
                 if (token) {
                     headers['Authorization'] = `Bearer ${token}`;
