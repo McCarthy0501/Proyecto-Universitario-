@@ -1,0 +1,74 @@
+{% load static %}
+<header class="bg-white sticky-top">
+  <section class="border-bottom">
+    <div class="container-fluid">
+      <nav class="navbar p-md-0 navbar-expand-sm navbar-light border-bottom">
+        <!-- Logo + Toggler (mobile) -->
+        <a class="navbar-brand d-lg-none mr-auto" href="{% url 'home' %}">
+          <img class="img-fluid" style="max-height: 45px;" src="{% static './images/SalasSanchez1629.png' %}" alt="Logo">
+        </a>
+        
+        <button class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#navbarTop4">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Contenido colapsable -->
+        <div class="collapse navbar-collapse" id="navbarTop4">
+          <div class="d-flex flex-column flex-lg-row align-items-lg-center w-100 ">
+            
+            <!-- Logo (desktop) -->
+            <div class="mr-lg-2 py-2 py-lg-0">
+              <a href="{% url 'home' %}" class="d-none d-lg-block">
+                <img class="img-fluid" style="max-height: 80px;" src="{% static './images/SalasSanchez1629.png' %}" alt="Logo">
+              </a>
+            </div>
+
+            <!-- Barra de búsqueda -->
+            <div class="flex-grow-1 mx-lg-4 my-2 my-lg-0">
+              <form action="{% url 'search' %}" class="w-100">
+                <div class="input-group">
+                  <input type="text" class="form-control rounded-right-0" placeholder="Buscar Productos" name="keyword">
+                  <div class="input-group-append">
+                    <button class="btn btn-primary rounded-left-0" type="submit">
+                      <i class="fa fa-search"></i>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <!-- Menú usuario/carrito -->
+            <div class="ml-lg-auto d-flex align-items-center mt-2 mt-lg-0">
+              {% if user.id is None %}
+              <div class="mr-3 text-right">
+                <small class="text-muted d-block">Bienvenido a SalasSanchez1629!</small>
+                <div>
+                  <a href="{% url 'login' %}" class="text-dark">Iniciar Sesión</a>
+                  <span class="mx-1 text-muted">|</span>
+                  <a href="{% url 'register' %}" class="text-dark">Registrarse</a>
+                </div>
+              </div>
+              {% else %}
+              <div class="mr-3 text-right">
+                <small class="text-muted d-block">Bienvenido/a {{ user.first_name }}</small>
+                <div>
+                  <a href="{% url 'dashboard' %}" class="text-dark">Mi cuenta</a>
+                  <span class="mx-1 text-muted">|</span>
+                  <a href="{% url 'logout' %}" class="text-dark">Cerrar sesión</a>
+                </div>
+              </div>
+              {% endif %}
+
+              <a href="{% url 'cart' %}" class="position-relative text-dark">
+                <div class="border rounded-circle p-2">
+                  <i class="fa fa-shopping-cart"></i>
+                </div>
+                <span class="badge badge-pill badge-danger position-absolute" style="top: -5px; right: -5px;">{{ cart_count }}</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </section>
+</header>

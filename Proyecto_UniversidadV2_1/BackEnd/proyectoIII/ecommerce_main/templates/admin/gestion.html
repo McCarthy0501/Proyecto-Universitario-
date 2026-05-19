@@ -1,0 +1,240 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+
+{% block content %}
+
+<!-- usuarios -->
+<h1 class="card-title text-center col-lg  col-md-6 col-sm-12 col">Panel Administrativo </h1>
+<h1>USUARIOS REGISTRADOS</h1>
+<nav class="navbar p-md-0 navbar-expand-sm navbar-light border-bottom">
+  
+<!-- barra de busqueda usuarios// -->
+<div class="card-body" style="max-width: 500px;">
+<div class="col-lg  col-md-6 col-sm-12 col">
+
+
+
+    <form action="{% url 'search' %}" class="search">
+      <div class="input-group w-100">
+          <input type="text" class="form-control" style="width:5%;" placeholder="No tocar" name="keyword">
+
+          <div class="input-group-append">
+            <button class="btn btn-dark" type="submit">
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
+        </div>
+    </form>
+
+
+
+</div> 
+
+</div>
+<!-- search-wrap .end// -->
+<!-- boton de agg usuarios// -->
+<a href="{% url 'agg_users' %}" class="btn btn-sm btn-success">Agregar +</a>
+</nav>
+
+<div class="container-fluid">
+   <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Nombre de Usuario</th>
+                <th scope="col">Correo Electrónico</th>
+                <th scope="col">Fecha de Registro</th>
+                <th scope="col">Status del Usuario</th>
+                <th scope="col">Activado</th>
+                <th scope="col">Funciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ usuario.username }}</td>
+                <td>{{ usuario.email }}</td>
+                <td>{{ usuario.date_joinded|date:"d M Y" }}</td>
+                <td>
+                  {% if usuario.is_active %}
+                    <span class="badge "style="background-color:#70F863">Verificado</span>
+                  {% else %}
+                    <span class="badge"style="background-color:#F86363">No Verificado</span>
+                  {% endif %}
+                </td>
+                <td> 
+                  <!-- check para activar cuentas-->
+                 <form method="POST" action="#">
+                    {% csrf_token %}
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox">
+                      <label class="form-check-label">
+                      {% if usuario.is_active %}Desactivar{% else %}Activar{% endif %}
+                      </label>
+                    </div>
+
+                  </form>
+                </td>
+
+
+
+               
+
+
+
+                
+                <td>
+                    <a href="{% url 'edit_users' %}" class="btn btn-sm btn-primary">Editar</a>
+                    <a href="#" class="btn btn-sm btn-danger">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+<!--colocar los botones de agg al lado de los titulos
+MODIFICAR EL COLOR DEL narvar a un color crema
+mover el logo a la izquierda
+colcoar el titulo en el medio de la pagina y en mayusculas
+titulos de las tablas en mayusculas
+colocar el total de cada tabla debajo del titulo de cada seccion del panel  
+-->
+
+<!-- productos  -->
+<h1 >PRODUCTOS REGISTRADOS</h1>
+<nav class="navbar p-md-0 navbar-expand-sm navbar-light border-bottom">
+    <!-- barra de busqueda de usuarios -->
+<div class="card-body " style="max-width: 500px;">
+<div class="col-lg  col-md-6 col-sm-12 col">
+
+    <form action="{% url 'search' %}" class="search">
+      <div class="input-group w-100">
+          <input type="text" class="form-control" style="width:5%;" placeholder="No tocar" name="keyword">
+
+          <div class="input-group-append">
+            <button class="btn btn-dark" type="submit">
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
+        </div>
+    </form> <!-- search-wrap .end// -->
+  </div>
+</div>
+ <a href="{% url 'agg_products' %}" class="btn btn-sm btn-warning">Agregar + </a>
+
+</nav>
+
+
+<table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Categoria</th>
+                <th scope="col">Nombre del Producto</th>
+                <th scope="col">precio</th>
+                <th scope="col">cantidad</th>
+                <th scope="col">Fecha de Registro</th>
+                <th scope="col">Funciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ producto.category }}</td>
+                <td>{{ producto.product_name }}</td>
+                <td>{{ producto.price }} $ </td>
+                <td>{{ producto.stock }}</td>
+                <td>{{ producto.modified_date|date:"d M Y" }}</td>
+                <td>
+                    <a href="{% url 'edit_products' %}" class="btn btn-sm btn-primary">Editar</a>
+                    <a href="#" class="btn btn-sm btn-danger">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+<h1>Ordenes</h1>
+<h1 >ORDENES REGISTRADAS</h1>
+<nav class="navbar p-md-0 navbar-expand-sm navbar-light border-bottom">
+    <!-- barra de busqueda de usuarios -->
+<div class="card-body " style="max-width: 500px;">
+<div class="col-lg  col-md-6 col-sm-12 col">
+
+    <form action="{% url 'search' %}" class="search">
+      <div class="input-group w-100">
+          <input type="text" class="form-control" style="width:5%;" placeholder="No tocar" name="keyword">
+
+          <div class="input-group-append">
+            <button class="btn btn-dark" type="submit">
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
+        </div>
+    </form> <!-- search-wrap .end// -->
+  </div>
+</div>
+ <a href="#" class="btn btn-sm btn-warning">Agregar + </a>
+
+</nav>
+
+
+<table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                
+                <th scope="col">Nombre</th>
+                <th scope="col">Apellido</th>
+                <th scope="col">N° Orden</th>
+                <th scope="col">Pais</th>
+                <th scope="col">Direccion</th>
+                <th scope="col">Creacion</th>
+                <th scope="col">Actualizacion</th>
+                <th scope="col">Status de la Orden</th>
+                <th scope="col">Formalizado</th>
+
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for ordenes in ordenes %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                
+                <td>{{ ordenes.first_name }}</td>
+                <td>{{ ordenes.last_name }}  </td>
+                <td>{{ ordenes.order_number }}</td>
+                <td>{{ ordenes.country }}</td>
+                <td>{{ ordenes.address_line_1 }}</td>
+                <td>{{ ordenes.created_at }}</td>
+                <td>{{ ordenes.updated_at }}</td>
+                <td>{{ ordenes.status }}</td>
+                
+                <td>{% if ordenes.is_ordered %}
+                    <span class="badge"style="background-color:#70F863">Formalizada</span>
+                  {% else %}
+                    <span class="badge"style="background-color:#F86363">No Formalizada</span>
+                  {% endif %}</td>
+                <td>
+                  <!--
+                    <a href="{% url 'edit_products' %}" class="btn btn-sm btn-primary">Editar</a>
+                    <a href="#" class="btn btn-sm btn-danger">Eliminar</a> -->
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+
+
+
+
+
+</div>
+
+
+{% endblock %}
