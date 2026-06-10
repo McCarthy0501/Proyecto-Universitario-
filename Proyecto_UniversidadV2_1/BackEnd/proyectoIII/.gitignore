@@ -1,59 +1,9 @@
-# ==========================================
-# GITIGNORE ESTÁNDAR PARA DJANGO / PYTHON
-# ==========================================
-
-# --- Entornos Virtuales (¡Lo que te estaba dando guerra!) ---
+# Entornos virtuales
 env/
-venv/
 ENV/
-.env/
-env.bak/
-venv.bak/
-BackEnd/proyectoIII/env/
-
-# --- Caché de Python ---
-**/__pycache__/
-*.py[cod]
-*$py.class
-
-# --- Bases de Datos Locales (No subir para no pisar producción) ---
-*.sqlite3
-*.db
-
-# --- Variables de Entorno y Secretos (¡Peligro si se suben!) ---
+venv/
 .env
-.env.local
-.env.development
-.env.production
-secrets.json
 
-# --- Archivos de registro y Logs ---
-*.log
-local_settings.py
-
-# --- Herramientas de empaquetado (Poetry/Pipenv por si acaso) ---
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
-
-# --- Archivos del Sistema Operativo ---
-# Linux (Parrot / Ubuntu)
-.directory
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# --- IDEs y Editores (Cursor, VS Code) ---
-.vscode/
-.cursor/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.swp
+# Archivos compilados de Python
+**/__pycache__/
+*.pyc
