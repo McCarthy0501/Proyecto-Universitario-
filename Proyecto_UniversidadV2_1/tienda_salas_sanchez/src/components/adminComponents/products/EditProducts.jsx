@@ -2,6 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { LogoForm } from "../../header/logo";
 import { Upload, X, AlertCircle, CheckCircle, Package, DollarSign, Loader } from "lucide-react";
+import { API_BASE_URL } from "../../../api";
 
 export default function EditProducts() {
     const { id } = useParams();
@@ -32,7 +33,7 @@ export default function EditProducts() {
     const fetchProduct = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:8000/api/productos/${id}/`);
+            const res = await fetch(`${API_BASE_URL}/api/productos/${id}/`);
             if (!res.ok) throw new Error('Error al cargar el producto');
             
             const productData = await res.json();
@@ -61,10 +62,10 @@ export default function EditProducts() {
 
     const fetchCategories = async () => {
         try {
-            const url = "http://localhost:8000/api/categorias";
+            const url = `${API_BASE_URL}/api/categorias?page_size=500`;
             const response = await fetch(url);
             const data = await response.json();
-            setCategories(data);
+            setCategories(data.results || data);
         } catch (e) {
             console.log("error al cargar categorías", e);
         }
@@ -178,7 +179,7 @@ export default function EditProducts() {
                 headers['Authorization'] = `Bearer ${token}`;
             }
 
-            const res = await fetch(`http://localhost:8000/api/productos/${id}/`, {
+            const res = await fetch(`${API_BASE_URL}/api/productos/${id}/`, {
                 method: "PUT",
                 headers: headers,
                 body: formdata,

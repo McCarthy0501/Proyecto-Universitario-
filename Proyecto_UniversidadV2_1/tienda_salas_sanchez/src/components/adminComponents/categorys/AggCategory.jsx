@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { LogoForm } from "../../header/logo";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../../api";
 function AggCategory() {
   const [error, setError] = useState("");
     const [data,setData]=useState(
@@ -40,7 +41,7 @@ function AggCategory() {
         if (data.cat_image) {
             formData.append("cat_image", data.cat_image); 
         }
-       const url="http://localhost:8000/api/admin/aggCategory/"
+       const url=`${API_BASE_URL}/api/admin/aggCategory/`
        try {
         const solicitud=await fetch(url,{
             method: "POST",

@@ -6,6 +6,7 @@ from .models import Product, Variation, ReviewRating, ProductGallery
 class ProductSerializer(serializers.ModelSerializer):
     average_rating = serializers.SerializerMethodField()
     review_count = serializers.SerializerMethodField()
+    price_bs = serializers.SerializerMethodField()
     
     class Meta:
         model = Product
@@ -16,6 +17,13 @@ class ProductSerializer(serializers.ModelSerializer):
     
     def get_review_count(self, obj):
         return obj.countReview()
+    
+    def get_price_bs(self, obj):
+        from store.models import ExchangeRate
+        rate = ExchangeRate.objects.first()
+        if rate:
+            return float(obj.price * rate.rate)
+        return float(obj.price * 95.00)
 
 
 class VariationSerializer(serializers.ModelSerializer):
@@ -47,6 +55,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     average_rating = serializers.SerializerMethodField()
     review_count = serializers.SerializerMethodField()
     category_name = serializers.SerializerMethodField()
+    price_bs = serializers.SerializerMethodField()
     
     class Meta:
         model = Product
@@ -68,3 +77,10 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     
     def get_category_name(self, obj):
         return obj.category.category_name if obj.category else None
+    
+    def get_price_bs(self, obj):
+        from store.models import ExchangeRate
+        rate = ExchangeRate.objects.first()
+        if rate:
+            return float(obj.price * rate.rate)
+        return float(obj.price * 95.00)

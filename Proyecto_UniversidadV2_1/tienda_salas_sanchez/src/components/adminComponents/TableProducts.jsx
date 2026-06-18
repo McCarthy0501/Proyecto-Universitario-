@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Edit, Trash2, Eye, Download, Filter, X, Plus, AlertTriangle, Package, DollarSign, TrendingUp, TrendingDown } from "lucide-react";
+import { API_BASE_URL } from "../../api";
+import PriceDisplay from "../complementos/PriceDisplay";
 
 export default function TableProducts() {
     const [products, setProducts] = useState([]);
@@ -24,10 +26,10 @@ export default function TableProducts() {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const url = "http://localhost:8000/api/productos";
+        const url = `${API_BASE_URL}/api/productos?page_size=500`;
         const peti = await fetch(url);
         const data = await peti.json();
-        setProducts(data);
+        setProducts(data.results || data);
       } catch (e) {
         console.log("error en los datos", e);
         alert("Error al cargar productos");
@@ -38,10 +40,10 @@ export default function TableProducts() {
 
     const fetchCategories = async () => {
       try {
-        const url = "http://localhost:8000/api/categorias";
+        const url = `${API_BASE_URL}/api/categorias?page_size=500`;
         const response = await fetch(url);
         const data = await response.json();
-        setCategories(data);
+        setCategories(data.results || data);
       } catch (e) {
         console.log("error al cargar categorías", e);
       }
@@ -109,7 +111,7 @@ export default function TableProducts() {
     const handleDelete = async (productId) => {
       try {
         const token = localStorage.getItem('accessToken') || '';
-        const response = await fetch(`http://localhost:8000/api/productos/${productId}/`, {
+        const response = await fetch(`${API_BASE_URL}/api/productos/${productId}/`, {
           method: 'DELETE',
           headers: {
             'Authorization': token ? `Bearer ${token}` : '',
@@ -354,7 +356,7 @@ export default function TableProducts() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className="font-semibold text-green-600">${product.price}</span>
+                      <PriceDisplay priceUsd={product.price} />
                     </td>
                     <td className="px-4 py-3 text-center">
                       {product.stock === 0 ? (

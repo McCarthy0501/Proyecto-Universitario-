@@ -1,49 +1,57 @@
-import { useState,useEffect,useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { API_BASE_URL } from "../../api";
 
+export const useProducts = (page = 1, filters = {}) => {
+  const [products, setProducts] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-export const useProducts=()=>{
-     const [product,setProduct]=useState([])
-    useEffect(() => {
-      const peticion = async () => {
-        const url = "http://localhost:8000/api/productos"; //url de la api creada en django
-        try {
-          const peti = await fetch(url); //hacemos la peticion confetch y como parametro la variable url
-          const data = await peti.json();//transformamos la respuesta en json
-          
-          setProduct(data);//cambiamos el estado y como parametro pasamos el json
-        } catch (e) {
-          console.log("error en los datos", e);//capturamos los errores
+  const buildUrl = useCallback(() => {
+    const params = new URLSearchParams();
+    params.append('page', page);
+    params.append('page_size', 12);
+
+    if (filters.search) params.append('search', filters.search);
+    if (filters.category) params.append('category', filters.category);
+    if (filters.minPrice) params.append('min_price', filters.minPrice);
+    if (filters.maxPrice) params.append('max_price', filters.maxPrice);
+    if (filters.sort) params.append('ordering', filters.sort);
+    if (filters.isAvailable !== undefined) params.append('is_available', filters.isAvailable);
+
+    return `${API_BASE_URL}/api/productos/?${params.toString()}`;
+  }, [page, filters]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const url = buildUrl();
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.results) {
+          setProducts(data.results);
+          setTotalPages(Math.ceil(data.count / 12) || 1);
+          setTotalProducts(data.count);
+        } else {
+          setProducts(data);
+          setTotalPages(1);
+          setTotalProducts(data.length);
         }
-      };
-      peticion();//ejecutamos la funcion
-    }, []);//el[ ] para que se ejecute una sola vez
-    
-    const productosOrdenados=useMemo(()=>{
+      } catch (e) {
+        console.log("error en los datos", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, [buildUrl]);
 
-      const copiaProductos=[...product]//copia de los productos
-
-      //ojo no esta acomodadoooo
-      return copiaProductos.sort((a,b)=>{
-        
-        const producto_A=a.product_name.toUpperCase();
-
-        const producto_B=b.product_name.toUpperCase();
-
-        if (producto_A<producto_B){
-          return -1
-       
-        }
-         else if (producto_A>producto_B){
-          return 1
-        }
-        return 0
-      })
-        
-    },[product])
-
-    return{
-        product, // Productos originales
-        productosOrdenados, // Productos ordenados alfabéticamente
-    }
-
-}
+  return {
+    products,
+    loading,
+    totalPages,
+    totalProducts,
+  };
+};

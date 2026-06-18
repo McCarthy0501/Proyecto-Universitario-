@@ -1,5 +1,6 @@
 import { useState,useEffect,useMemo } from "react"
 import {  useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../api";
 
 
 export const useCategorys=()=>{
@@ -8,11 +9,11 @@ export const useCategorys=()=>{
 
     useEffect(()=>{
         const peticion=async()=>{
-            const url ="http://localhost:8000/api/categorias"
+            const url =`${API_BASE_URL}/api/categorias`
             try {
                 const consulta= await fetch(url)
                 const data= await consulta.json()
-                setCategory(data)
+                setCategory(data.results || data)
                 
             } catch (e) {
               console.log("error en los datos", e); //capturamos los errores

@@ -1,6 +1,7 @@
 import { useNavigate,useParams } from "react-router-dom";
 import { useEffect,useState } from "react";
 import { LogoForm } from "../../header/logo";
+import { API_BASE_URL } from "../../../api";
 
 export default function DeleteCategory() {
     //obtenemos la id por medio de la url de table categori
@@ -10,7 +11,7 @@ export default function DeleteCategory() {
     useEffect(()=>{
         const peticion= async ()=>{
             try {
-                const result= await fetch(`http://localhost:8000/api/delete_categorias/${id}/`);
+                const result= await fetch(`${API_BASE_URL}/api/delete_categorias/${id}/`);
                 const data = await result.json();
                 setdelete(data);
              
@@ -43,7 +44,7 @@ export default function DeleteCategory() {
          
         
         try {
-            const solicitud = await fetch(`http://localhost:8000/api/delete_categorias/${id}/`,{
+            const solicitud = await fetch(`${API_BASE_URL}/api/delete_categorias/${id}/`,{
                 method: "DELETE",
                 
             });

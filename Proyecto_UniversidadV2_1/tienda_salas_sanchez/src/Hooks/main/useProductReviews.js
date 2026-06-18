@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from "../../api";
 
 export const useProductReviews = (productId) => {
   const [reviews, setReviews] = useState([]);
@@ -13,7 +14,7 @@ export const useProductReviews = (productId) => {
       setError(null);
       
       try {
-        const url = `http://localhost:8000/api/productos/${productId}/reviews/`;
+        const url = `${API_BASE_URL}/api/productos/${productId}/reviews/`;
         const response = await fetch(url);
         
         if (!response.ok) {
@@ -40,7 +41,7 @@ export const useProductReviews = (productId) => {
     }
     
     try {
-      const url = `http://localhost:8000/api/productos/${productId}/crear-review/`;
+      const url = `${API_BASE_URL}/api/productos/${productId}/crear-review/`;
       const response = await fetch(url, {
         method: 'POST',
         headers: {

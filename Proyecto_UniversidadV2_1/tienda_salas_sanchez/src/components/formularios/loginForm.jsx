@@ -3,6 +3,7 @@ import  { useState } from 'react';
 import {LogoForm} from '../header/logo';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { API_BASE_URL } from '../../api';
 import toast from 'react-hot-toast';
 {/* creamos la funcion y el estado incial del formulario, 
   el campo email y password seran cadenas vacias  */}
@@ -34,7 +35,7 @@ function LoginForm() {
       return;
     }
 
-    const url="http://localhost:8000/api/token/";
+    const url=`${API_BASE_URL}/api/token/`;
     try {
       const peticion= await fetch(url,{
         method:"POST",

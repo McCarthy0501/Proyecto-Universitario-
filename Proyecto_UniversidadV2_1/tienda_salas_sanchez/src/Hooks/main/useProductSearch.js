@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { API_BASE_URL } from "../../api";
 
 export const useProductSearch = () => {
   const [products, setProducts] = useState([]);
@@ -19,7 +20,7 @@ export const useProductSearch = () => {
       if (filters.sort) params.append('sort', filters.sort);
       if (filters.isAvailable !== undefined) params.append('is_available', filters.isAvailable);
 
-      const url = `http://localhost:8000/api/productos/buscar/?${params.toString()}`;
+      const url = `${API_BASE_URL}/api/productos/buscar/?${params.toString()}`;
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -49,7 +50,7 @@ export const useRelatedProducts = (productId) => {
       setLoading(true);
       
       try {
-        const url = `http://localhost:8000/api/productos/${productId}/relacionados/`;
+        const url = `${API_BASE_URL}/api/productos/${productId}/relacionados/`;
         const response = await fetch(url);
         
         if (!response.ok) {

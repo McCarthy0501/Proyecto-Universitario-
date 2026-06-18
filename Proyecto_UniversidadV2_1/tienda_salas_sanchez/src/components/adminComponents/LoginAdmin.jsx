@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { LogoForm } from '../header/logo';
 import { useNavigate } from "react-router-dom";
 import { useAdminAuth } from '../../contexts/AdminAuthContext';
+import { API_BASE_URL } from '../../api';
 
 function FormAdmin() {
   const [data, setData] = useState({ email: "", password: ""});
@@ -22,7 +23,7 @@ function FormAdmin() {
 
     try {
       // Paso 1: Obtener token JWT
-      const response = await fetch("http://localhost:8000/api/token/", {
+      const response = await fetch(`${API_BASE_URL}/api/token/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -37,7 +38,7 @@ function FormAdmin() {
       }
 
       // Paso 2: Obtener datos del usuario
-      const userResponse = await fetch("http://localhost:8000/api/user/me/", {
+      const userResponse = await fetch(`${API_BASE_URL}/api/user/me/`, {
         headers: {
           'Authorization': `Bearer ${result.access}`,
         },
@@ -120,9 +121,12 @@ function FormAdmin() {
           </button>
         </form>
 
-        <div className="text-center mt-4">
-          <a href="/" className="text-sm text-blue-600 hover:text-blue-800">
+        <div className="text-center mt-4 space-y-2">
+          <a href="/" className="text-sm text-blue-600 hover:text-blue-800 block">
             ← Volver a la tienda
+          </a>
+          <a href="/#/admin-recovery" className="text-sm text-red-600 hover:text-red-800 block">
+            ¿Olvidaste tu contraseña de administrador?
           </a>
         </div>
       </div>

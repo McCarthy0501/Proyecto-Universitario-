@@ -7,6 +7,7 @@ import AggProducts from "../../components/adminComponents/products/AggProducts";
 import TableUsers from "../../components/adminComponents/users/TableUsers";
 import TableOrders from "../../components/adminComponents/TableOrders";
 import Estadistica from "../../components/adminComponents/estadsiticas";
+import ExchangeRatePanel from "../../components/adminComponents/ExchangeRatePanel";
 import { motion } from "framer-motion";
 
 function AdminPanel() {
@@ -19,7 +20,8 @@ function AdminPanel() {
     'aggCategorias': <AggCategory />,
     'aggProducts': <AggProducts />,
     'usuarios': <TableUsers />,
-    'ordenes': <TableOrders />
+    'ordenes': <TableOrders />,
+    'tasa': <ExchangeRatePanel />
   };
 
   return (

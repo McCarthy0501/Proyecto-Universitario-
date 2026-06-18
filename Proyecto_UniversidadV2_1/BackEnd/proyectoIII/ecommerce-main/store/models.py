@@ -89,3 +89,16 @@ class ProductGallery(models.Model):
 
     def __str__(self):
         return self.product.product_name
+
+
+class ExchangeRate(models.Model):
+    rate = models.DecimalField(max_digits=10, decimal_places=2, default=95.00, help_text="Tasa de cambio Bs por USD")
+    source = models.CharField(max_length=20, default='manual', choices=[('manual', 'Manual'), ('auto', 'Automático')])
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Tasa de Cambio'
+        verbose_name_plural = 'Tasa de Cambio'
+
+    def __str__(self):
+        return f"Bs. {self.rate} | {self.source}"

@@ -2,6 +2,7 @@ import { HashRouter , Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { AdminAuthProvider, useAdminAuth } from './contexts/AdminAuthContext';
 import { CartProvider } from './contexts/CartContext';
+import { ExchangeRateProvider } from './contexts/ExchangeRateContext';
 import { Toaster } from 'react-hot-toast';
 
 import Home from './pages/ecomerce/home';
@@ -17,6 +18,7 @@ import MisPedidos from './pages/ecomerce/misPedidos';
 import ForgotPasswordForm from './components/formularios/forgotPasswordForm';
 import SearchResults from './pages/ecomerce/searchResults';
 import ProductDetailPage from './pages/ecomerce/productDetail';
+import AdminRecovery from './pages/ecomerce/adminRecovery';
 
 
 import FormAdmin from './components/adminComponents/LoginAdmin';
@@ -51,6 +53,7 @@ function App() {
       <AuthProvider>
         <CartProvider>
           <AdminAuthProvider>
+            <ExchangeRateProvider>
             <div className="flex flex-col min-h-screen bg-gray-100">
               <Routes>
                 <Route element={<MainLayout />}>
@@ -66,6 +69,7 @@ function App() {
                   <Route path='/micuenta' element={<MiCuenta/>}></Route>
                   <Route path='/mis-pedidos' element={<MisPedidos/>}></Route>
                   <Route path="/search" element={<SearchResults />}></Route>
+                  <Route path="/admin-recovery" element={<AdminRecovery />}></Route>
                 </Route>
 
                 <Route path="/admin" element={<FormAdmin />}></Route>
@@ -94,6 +98,7 @@ function App() {
                 </Route>
               </Routes>
             </div>
+            </ExchangeRateProvider>
           </AdminAuthProvider>
         </CartProvider>
       </AuthProvider>

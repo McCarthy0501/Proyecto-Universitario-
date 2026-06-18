@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Package, DollarSign, TrendingUp, TrendingDown, Users, ShoppingCart, AlertTriangle, BarChart3 } from "lucide-react";
+import { API_BASE_URL } from "../../api";
 
 function Estadistica() {
     const [stats, setStats] = useState({
@@ -25,12 +26,13 @@ function Estadistica() {
         setLoading(true);
         try {
             // Obtener productos
-            const productsRes = await fetch("http://localhost:8000/api/productos");
+            const productsRes = await fetch(`${API_BASE_URL}/api/productos?page_size=500`);
             const productsData = await productsRes.json();
+            const products = productsData.results || productsData;
             
-            // Obtener categorías
-            const categoriesRes = await fetch("http://localhost:8000/api/categorias");
+            const categoriesRes = await fetch(`${API_BASE_URL}/api/categorias?page_size=500`);
             const categoriesData = await categoriesRes.json();
+            const categories = categories.results || categoriesData;
 
             // Obtener usuarios (si el endpoint existe)
             let usersData = [];
@@ -40,9 +42,10 @@ function Estadistica() {
                 if (token) {
                     headers['Authorization'] = `Bearer ${token}`;
                 }
-                const usersRes = await fetch("http://localhost:8000/api/users/", { headers });
+                const usersRes = await fetch(`${API_BASE_URL}/api/users/?page_size=500`, { headers });
                 if (usersRes.ok) {
-                    usersData = await usersRes.json();
+                    const data = await usersRes.json();
+                    usersData = data.results || data;
                 }
             } catch (e) {
                 console.log("Error al cargar usuarios:", e);
@@ -56,28 +59,29 @@ function Estadistica() {
                 if (token) {
                     headers['Authorization'] = `Bearer ${token}`;
                 }
-                const ordersRes = await fetch("http://localhost:8000/api/orders/", { headers });
+                const ordersRes = await fetch(`${API_BASE_URL}/api/orders/?page_size=500`, { headers });
                 if (ordersRes.ok) {
-                    ordersData = await ordersRes.json();
+                    const data = await ordersRes.json();
+                    ordersData = data.results || data;
                 }
             } catch (e) {
                 console.log("Error al cargar órdenes:", e);
             }
 
             // Calcular estadísticas
-            const totalProducts = productsData.length || 0;
-            const lowStockProducts = productsData.filter(p => p.stock <= 5 && p.stock > 0).length || 0;
-            const outOfStockProducts = productsData.filter(p => p.stock === 0).length || 0;
-            const activeProducts = productsData.filter(p => p.is_available).length || 0;
-            const inactiveProducts = productsData.filter(p => !p.is_available).length || 0;
-            const totalInventoryValue = productsData.reduce((sum, p) => sum + (parseFloat(p.price || 0) * parseInt(p.stock || 0)), 0);
+            const totalProducts = products.length || 0;
+            const lowStockProducts = products.filter(p => p.stock <= 5 && p.stock > 0).length || 0;
+            const outOfStockProducts = products.filter(p => p.stock === 0).length || 0;
+            const activeProducts = products.filter(p => p.is_available).length || 0;
+            const inactiveProducts = products.filter(p => !p.is_available).length || 0;
+            const totalInventoryValue = products.reduce((sum, p) => sum + (parseFloat(p.price || 0) * parseInt(p.stock || 0)), 0);
             const averagePrice = totalProducts > 0 
-                ? productsData.reduce((sum, p) => sum + parseFloat(p.price || 0), 0) / totalProducts 
+                ? products.reduce((sum, p) => sum + parseFloat(p.price || 0), 0) / totalProducts 
                 : 0;
 
             // Agrupar productos por categoría para el gráfico
             const categoryCount = {};
-            productsData.forEach(p => {
+            products.forEach(p => {
                 const catName = p.category?.category_name || 'Sin categoría';
                 categoryCount[catName] = (categoryCount[catName] || 0) + 1;
             });
@@ -85,7 +89,7 @@ function Estadistica() {
 
             setStats({
                 totalProducts,
-                totalCategories: categoriesData.length || 0,
+                totalCategories: categories.length || 0,
                 totalUsers: Array.isArray(usersData) ? usersData.length : 0,
                 totalOrders: Array.isArray(ordersData) ? ordersData.length : 0,
                 lowStockProducts,

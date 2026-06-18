@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../../contexts/AuthContext";
 import { Package, MapPin, Clock, CheckCircle, XCircle, ShoppingBag } from "lucide-react";
 import { Link } from "react-router-dom";
+import { API_BASE_URL } from "../../api";
 
 function MisPedidos() {
   const { token, isAuthenticated } = useAuth();
@@ -16,7 +17,7 @@ function MisPedidos() {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/orders/my-orders/', {
+      const response = await fetch(`${API_BASE_URL}/api/orders/my-orders/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',

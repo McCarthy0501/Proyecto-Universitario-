@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, Plus, Minus, Trash2, Eye, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
+import PriceDisplay from './PriceDisplay';
 
 function ProductCard({product}) {
     const { addToCart, removeFromCart, updateQuantity, isInCart, getProductQuantity } = useCart();
@@ -93,9 +94,7 @@ function ProductCard({product}) {
             </h3>
             
             <div className="flex items-center justify-between mb-2">
-                <p className="text-xl font-semibold text-indigo-600">
-                    ${product.price}
-                </p>
+                <PriceDisplay priceUsd={product.price} />
                 {reviewCount > 0 && (
                     <div className="flex items-center gap-1">
                         {renderStars(averageRating)}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Camera, X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { API_BASE_URL } from '../../api';
 
 function EditProfileForm({ onClose, onUpdate }) {
   const { user, refreshUserInfo } = useAuth();
@@ -82,7 +83,7 @@ function EditProfileForm({ onClose, onUpdate }) {
         formDataToSend.append('profile_picture', profilePicture);
       }
 
-      const response = await fetch('http://localhost:8000/api/user/me/', {
+      const response = await fetch(`${API_BASE_URL}/api/user/me/`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,

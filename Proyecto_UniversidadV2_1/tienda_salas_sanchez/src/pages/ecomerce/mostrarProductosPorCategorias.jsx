@@ -3,6 +3,7 @@ import ProductCard from "../../components/complementos/productCard";
 import { useEffect,useState } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { API_BASE_URL } from "../../api";
 
 
 export default function MostrarProductosPorCategorias() {
@@ -18,7 +19,7 @@ export default function MostrarProductosPorCategorias() {
         setProductos([]);
         const peticionApiProductosPorCategorias=  async ()=>{
             try {
-                const url =`http://localhost:8000/api/productosPorCategorias/${id}/`;
+                const url =`${API_BASE_URL}/api/productosPorCategorias/${id}/`;
                 const peticion = await fetch(url);
                 
                 if(!peticion.ok){

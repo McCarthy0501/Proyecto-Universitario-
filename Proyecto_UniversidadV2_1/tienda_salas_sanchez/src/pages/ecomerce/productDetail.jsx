@@ -10,6 +10,7 @@ import { Star, ShoppingCart, Plus, Minus, Heart, Truck, Shield, RotateCcw, Chevr
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import ProductCard from '../../components/complementos/productCard';
+import PriceDisplay from '../../components/complementos/PriceDisplay';
 
 function ProductDetailPage() {
   const { id } = useParams();
@@ -207,7 +208,7 @@ function ProductDetailPage() {
             </span>
           </div>
 
-          <p className="text-3xl font-bold text-blue-600 mb-4">${product.price}</p>
+          <PriceDisplay priceUsd={product.price} className="text-2xl font-bold text-blue-600 mb-4" />
 
           <div className="flex items-center gap-2 mb-4">
             {product.is_available ? (

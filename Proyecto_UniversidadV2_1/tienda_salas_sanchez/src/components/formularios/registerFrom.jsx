@@ -2,6 +2,7 @@
 import  { useState } from 'react';
 import {LogoForm} from"../header/logo";
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../../api';
 import toast from 'react-hot-toast';
 function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -33,7 +34,7 @@ function RegisterForm() {
       return;
     }
 
-    const url = "http://localhost:8000/api/register_user/";
+    const url = `${API_BASE_URL}/api/register_user/`;
     try {
       const peticion = await fetch(url, {
         method: "POST",

@@ -5,6 +5,8 @@ import { Trash2, Plus, Minus, ShoppingBag, CreditCard, CheckCircle, Loader2, Wal
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from "../../api";
+import PriceDisplay from "../../components/complementos/PriceDisplay";
 
 function CartPage() {
   const { 
@@ -26,6 +28,16 @@ function CartPage() {
   const [orderResult, setOrderResult] = useState(null);
   const [error, setError] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('simulated');
+
+  const paymentMethodLabels = {
+    'simulated': 'Pago con Tarjeta',
+    'transfer': 'Transferencia Bancaria',
+    'cash': 'Contra Entrega'
+  };
+
+  const getPaymentMethodLabel = () => {
+    return paymentMethodLabels[paymentMethod] || paymentMethod;
+  };
   
   const [formData, setFormData] = useState({
     first_name: user?.first_name || '',
@@ -63,16 +75,6 @@ function CartPage() {
         quantity: item.quantity
       }));
 
-      const paymentMethodLabels = {
-        'simulated': 'Pago con Tarjeta',
-        'transfer': 'Transferencia Bancaria',
-        'cash': 'Contra Entrega'
-      };
-
-      const getPaymentMethodLabel = () => {
-        return paymentMethodLabels[paymentMethod] || paymentMethod;
-      };
-
       const authToken = token || localStorage.getItem('accessToken');
       console.log("=== TOKEN USADO ===", authToken);
       console.log("=== USER ===", user);
@@ -81,7 +83,7 @@ function CartPage() {
         throw new Error("No has iniciado sesión. Por favor, inicia sesión para continuar.");
       }
 
-      const response = await fetch('http://localhost:8000/api/orders/create/', {
+      const response = await fetch(`${API_BASE_URL}/api/orders/create/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -200,7 +202,7 @@ function CartPage() {
                       />
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-900">{item.product_name}</h3>
-                        <p className="text-gray-600">${item.price} c/u</p>
+                        <p className="text-gray-600"><PriceDisplay priceUsd={item.price} showBs={false} /> c/u</p>
                       </div>
                       <div className="flex items-center space-x-2">
                         <button
@@ -219,7 +221,7 @@ function CartPage() {
                       </div>
                       <div className="text-right">
                         <p className="font-semibold text-gray-900">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          <PriceDisplay priceUsd={(item.price * item.quantity).toFixed(2)} />
                         </p>
                       </div>
                       <button

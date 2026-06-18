@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaBoxes, FaUsers, FaSignOutAlt, FaChevronDown, FaChevronRight, FaBoxOpen, FaClipboardList, FaChartBar, FaHome } from "react-icons/fa";
+import { FaBoxes, FaUsers, FaSignOutAlt, FaChevronDown, FaChevronRight, FaBoxOpen, FaClipboardList, FaChartBar, FaHome, FaDollarSign } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAdminAuth } from "../../contexts/AdminAuthContext";
@@ -28,6 +28,7 @@ export default function AdminSidebar({ setActiveSection, activeSection }) {
     { id: 'productos', label: 'Productos', icon: FaBoxOpen },
     { id: 'usuarios', label: 'Usuarios', icon: FaUsers },
     { id: 'ordenes', label: 'Órdenes', icon: FaClipboardList },
+    { id: 'tasa', label: 'Tasa BCV', icon: FaDollarSign },
   ];
 
   return (

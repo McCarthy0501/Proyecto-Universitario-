@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Search, User, Mail, Phone, Calendar, Shield, ToggleLeft, ToggleRight, Edit, Trash2 } from "lucide-react";
+import { API_BASE_URL } from "../../../api";
 
 export default function TableUsers() {
   const [users, setUsers] = useState([]);
@@ -31,7 +32,7 @@ export default function TableUsers() {
     setLoading(true);
     try {
       const token = localStorage.getItem("adminToken") || localStorage.getItem("accessToken");
-      const response = await fetch("http://localhost:8000/api/users/", {
+      const response = await fetch(`${API_BASE_URL}/api/users/?page_size=500`, {
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -40,8 +41,9 @@ export default function TableUsers() {
       
       if (response.ok) {
         const data = await response.json();
-        setUsers(data);
-        setFilteredUsers(data);
+        const items = data.results || data;
+        setUsers(items);
+        setFilteredUsers(items);
       }
     } catch (e) {
       console.error("Error al cargar usuarios:", e);
@@ -53,7 +55,7 @@ export default function TableUsers() {
   const toggleUserStatus = async (userId, currentStatus) => {
     try {
       const token = localStorage.getItem("adminToken") || localStorage.getItem("accessToken");
-      const response = await fetch(`http://localhost:8000/api/users/${userId}/`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/${userId}/`, {
         method: 'PATCH',
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',

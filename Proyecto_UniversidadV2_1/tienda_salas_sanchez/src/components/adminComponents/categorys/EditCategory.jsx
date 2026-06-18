@@ -1,6 +1,7 @@
 import { useNavigate,useParams } from "react-router-dom";
 import { useEffect,useState } from "react";
 import { LogoForm } from "../../header/logo";
+import { API_BASE_URL } from "../../../api";
 export default function EditCategory(){
     const { id } = useParams();//extraemos el parametro de la category que viene de url de tablecategory
     console.log(id)
@@ -17,7 +18,7 @@ export default function EditCategory(){
         //peticion para la extraccion de los valores actuales de la categoria desde la Api
         const peticionApi =async ()=>{
             try {
-               const res= await fetch(`http://localhost:8000/api/edit_categorias/${id}/`);
+               const res= await fetch(`${API_BASE_URL}/api/edit_categorias/${id}/`);
                const data=await res.json() 
                //capturamos los valores originales de la categoria
                setNewName({
@@ -57,7 +58,7 @@ export default function EditCategory(){
         if (newName.cat_image) fromdata.append("cat_image", newName.cat_image);
         //capturamos errores en el PUT
         try {
-            const res = await fetch(`http://localhost:8000/api/edit_categorias/${id}/`, {
+            const res = await fetch(`${API_BASE_URL}/api/edit_categorias/${id}/`, {
             method: "PUT",
             body: fromdata,
             });
