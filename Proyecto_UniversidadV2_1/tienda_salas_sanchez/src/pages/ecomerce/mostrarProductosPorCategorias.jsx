@@ -2,13 +2,8 @@ import ProductCard from "../../components/complementos/productCard";
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-<<<<<<< HEAD
-import { API_BASE_URL } from "../../api";
-
-=======
 import Breadcrumb from "../../components/complementos/Breadcrumb";
 import { useCategorys } from "../../Hooks/main/useCategorys";
->>>>>>> desarrollo
 
 export default function MostrarProductosPorCategorias() {
     const { id } = useParams();
@@ -28,11 +23,7 @@ export default function MostrarProductosPorCategorias() {
         setProductos([]);
         const peticionApiProductosPorCategorias = async () => {
             try {
-<<<<<<< HEAD
-                const url =`${API_BASE_URL}/api/productosPorCategorias/${id}/`;
-=======
                 const url = `http://localhost:8000/api/productosPorCategorias/${id}/`;
->>>>>>> desarrollo
                 const peticion = await fetch(url);
 
                 if (!peticion.ok) {

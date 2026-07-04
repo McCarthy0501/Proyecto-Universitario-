@@ -1,11 +1,6 @@
-<<<<<<< HEAD
-import { useState, useEffect, useCallback } from "react";
-import { API_BASE_URL } from "../../api";
-=======
 import { useState, useEffect, useCallback, useRef } from "react";
 
 const API_BASE = 'http://localhost:8000';
->>>>>>> desarrollo
 
 export const useProductSearch = () => {
   const [products, setProducts] = useState([]);
@@ -33,11 +28,7 @@ export const useProductSearch = () => {
       if (filters.minRating) params.append('min_rating', filters.minRating);
       params.append('page', pageNum);
 
-<<<<<<< HEAD
-      const url = `${API_BASE_URL}/api/productos/buscar/?${params.toString()}`;
-=======
       const url = `${API_BASE}/api/productos/buscar/?${params.toString()}`;
->>>>>>> desarrollo
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -82,11 +73,7 @@ export const useRelatedProducts = (productId) => {
       setLoading(true);
 
       try {
-<<<<<<< HEAD
-        const url = `${API_BASE_URL}/api/productos/${productId}/relacionados/`;
-=======
         const url = `${API_BASE}/api/productos/${productId}/relacionados/`;
->>>>>>> desarrollo
         const response = await fetch(url);
 
         if (!response.ok) {

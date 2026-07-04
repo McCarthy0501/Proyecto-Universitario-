@@ -212,26 +212,6 @@ class AggProduct(APIView):
             except Category.DoesNotExist:
                 return Response({"error": "La categoría no existe"}, status=status.HTTP_400_BAD_REQUEST)
 
-<<<<<<< HEAD
-        if images:
-            if images.size > 5 * 1024 * 1024:
-                return Response({"error": "La imagen no debe superar 5MB"}, status=status.HTTP_400_BAD_REQUEST)
-            import imghdr
-            valid_types = ('jpeg', 'png', 'gif', 'webp')
-            detected = imghdr.what(images)
-            if detected not in valid_types:
-                return Response({"error": "Formato de imagen no válido. Usa JPEG, PNG, GIF o WebP"}, status=status.HTTP_400_BAD_REQUEST)
-
-        Product.objects.create(
-            product_name=product_name,
-            slug=slug,
-            description=description,
-            price=price,
-            images=images,
-            stock=stock,
-            category=category
-        )
-=======
             Product.objects.create(
                 product_name=product_name,
                 slug=slug,
@@ -241,7 +221,6 @@ class AggProduct(APIView):
                 stock=stock,
                 category=category
             )
->>>>>>> desarrollo
 
             return Response({
                 "message":"Producto creado con exito"
@@ -656,16 +635,6 @@ class ProductSearchView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, format=None):
-<<<<<<< HEAD
-        from django.db.models import Q
-
-        query = request.query_params.get('q', '')
-        category_id = request.query_params.get('category', '')
-        min_price = request.query_params.get('min_price', '')
-        max_price = request.query_params.get('max_price', '')
-        sort = request.query_params.get('sort', '')
-        is_available = request.query_params.get('is_available', '')
-=======
         from django.db.models import Q, Avg, F
         
         query = request.query_params.get('q', '')
@@ -675,7 +644,6 @@ class ProductSearchView(APIView):
         sort = request.query_params.get('sort', '-created_date')
         is_available = request.query_params.get('is_available', None)
         min_rating = request.query_params.get('min_rating', None)
->>>>>>> desarrollo
 
         products = Product.objects.all()
 
@@ -703,17 +671,6 @@ class ProductSearchView(APIView):
         if is_available in ('true', 'false'):
             products = products.filter(is_available=is_available == 'true')
 
-<<<<<<< HEAD
-        sort_map = {
-            'price_asc': 'price',
-            'price_desc': '-price',
-            'name': 'product_name',
-            'name_desc': '-product_name',
-            '-created_date': '-created_date',
-        }
-        order = sort_map.get(sort, '-created_date')
-        products = products.order_by(order)
-=======
         # Filtro por rating mínimo
         if min_rating:
             products = products.annotate(avg_rating=Avg('reviewrating__rating')).filter(avg_rating__gte=float(min_rating))
@@ -729,7 +686,6 @@ class ProductSearchView(APIView):
             products = products.annotate(avg_rating=Avg('reviewrating__rating')).order_by(F('avg_rating').desc(nulls_last=True))
         else:
             products = products.order_by('-created_date')
->>>>>>> desarrollo
 
         from rest_framework.pagination import PageNumberPagination
         paginator = PageNumberPagination()

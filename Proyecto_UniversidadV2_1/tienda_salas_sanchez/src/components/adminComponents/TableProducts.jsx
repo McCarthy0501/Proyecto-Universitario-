@@ -264,7 +264,7 @@ export default function TableProducts() {
             className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">Todos los stocks</option>
-            <option value="in">En stock (>5)</option>
+            <option value="in">En stock (5)</option>
             <option value="low">Stock bajo (≤5)</option>
             <option value="out">Sin stock</option>
           </select>

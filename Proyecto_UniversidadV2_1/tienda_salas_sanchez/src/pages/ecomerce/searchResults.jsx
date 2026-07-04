@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-import { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Search, Filter, SlidersHorizontal, DollarSign, Package, Star } from 'lucide-react';
-import ProductCard from '../../components/complementos/productCard';
-=======
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, Filter, SlidersHorizontal, DollarSign, Package, Star } from 'lucide-react';
@@ -11,80 +5,28 @@ import ProductCard from '../../components/complementos/productCard';
 import Pagination from '../../components/complementos/Pagination';
 import Breadcrumb from '../../components/complementos/Breadcrumb';
 import { useProductSearch } from '../../Hooks/main/useProductSearch';
->>>>>>> desarrollo
 import { useCategorys } from '../../Hooks/main/useCategorys';
-import { API_BASE_URL } from '../../api';
 
 function SearchResults() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const query = searchParams.get('q') || '';
 
-<<<<<<< HEAD
-  const { categoriasOrdenadas } = useCategorys();
-
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-=======
   const { products, loading, searchProducts, page, totalPages, totalCount, changePage } = useProductSearch();
   const { categoriasOrdenadas } = useCategorys();
 
->>>>>>> desarrollo
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     category: '',
     minPrice: '',
     maxPrice: '',
-<<<<<<< HEAD
-    sort: '',
-    isAvailable: undefined,
-=======
     inStock: false,
     minRating: '',
     sort: '-created_date',
->>>>>>> desarrollo
   });
   const filtersRef = useRef(filters);
   filtersRef.current = filters;
 
-<<<<<<< HEAD
-  useEffect(() => {
-    const fetchResults = async () => {
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (query) params.append('q', query);
-      if (filters.category) params.append('category', filters.category);
-      if (filters.minPrice) params.append('min_price', filters.minPrice);
-      if (filters.maxPrice) params.append('max_price', filters.maxPrice);
-      if (filters.sort) params.append('sort', filters.sort);
-      if (filters.isAvailable !== undefined) params.append('is_available', filters.isAvailable);
-
-      try {
-        const url = `${API_BASE_URL}/api/productos/buscar/?${params.toString()}`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`Error ${res.status}`);
-        const data = await res.json();
-        setResults(Array.isArray(data) ? data : (data.results || []));
-        setError(null);
-      } catch (e) {
-        console.error('Error en busqueda:', e);
-        setError(e.message);
-        setResults([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchResults();
-  }, [query, filters]);
-
-  const handleFilterChange = (name, value) => {
-    setFilters(prev => ({ ...prev, [name]: value }));
-  };
-
-  const clearFilters = () => {
-    setFilters({ category: '', minPrice: '', maxPrice: '', sort: '', isAvailable: undefined });
-=======
   const doSearch = useCallback((currentFilters, pageNum = 1) => {
     searchProducts({
       query: query,
@@ -118,10 +60,9 @@ function SearchResults() {
     };
     setFilters(cleared);
     doSearch(cleared, 1);
->>>>>>> desarrollo
   };
 
-  const hasActiveFilters = filters.category || filters.minPrice || filters.maxPrice || filters.sort || filters.isAvailable !== undefined;
+  const hasActiveFilters = filters.category || filters.minPrice || filters.maxPrice || filters.sort !== '-created_date' || filters.inStock || filters.minRating;
 
   const handlePageChange = (newPage) => {
     changePage(newPage);
@@ -130,8 +71,6 @@ function SearchResults() {
   return (
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-<<<<<<< HEAD
-=======
 
         <Breadcrumb
           items={[
@@ -141,8 +80,6 @@ function SearchResults() {
           currentLabel={query || 'Todos los productos'}
         />
 
-        {/* Header de búsqueda */}
->>>>>>> desarrollo
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -150,11 +87,7 @@ function SearchResults() {
                 {query ? `Resultados para: "${query}"` : 'Busqueda de Productos'}
               </h1>
               <p className="text-gray-600 mt-1">
-<<<<<<< HEAD
-                {results.length} {results.length === 1 ? 'producto encontrado' : 'productos encontrados'}
-=======
                 {totalCount} {totalCount === 1 ? 'producto encontrado' : 'productos encontrados'}
->>>>>>> desarrollo
               </p>
             </div>
             <button
@@ -166,10 +99,6 @@ function SearchResults() {
             </button>
           </div>
 
-<<<<<<< HEAD
-=======
-          {/* Barra de búsqueda */}
->>>>>>> desarrollo
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -207,16 +136,12 @@ function SearchResults() {
                     Filtros
                   </h2>
                   {hasActiveFilters && (
-<<<<<<< HEAD
-                    <button onClick={clearFilters} className="text-sm text-red-600 hover:text-red-800">Limpiar</button>
-=======
                     <button
                       onClick={handleClearFilters}
                       className="text-sm text-blue-600 hover:text-blue-800"
                     >
                       Limpiar
                     </button>
->>>>>>> desarrollo
                   )}
                 </div>
 
@@ -259,8 +184,8 @@ function SearchResults() {
 
                   <div>
                     <label className="flex items-center space-x-2 cursor-pointer">
-                      <input type="checkbox" checked={filters.isAvailable === true}
-                        onChange={(e) => handleFilterChange('isAvailable', e.target.checked ? true : undefined)}
+                      <input type="checkbox" checked={filters.inStock}
+                        onChange={(e) => handleFilterChange('inStock', e.target.checked)}
                         className="w-4 h-4 text-blue-600 rounded" />
                       <span className="text-sm font-medium text-gray-700 flex items-center">
                         <Package className="w-4 h-4 mr-1" /> Solo disponibles
@@ -284,25 +209,6 @@ function SearchResults() {
                       <div className="h-4 bg-gray-200 rounded w-full"></div>
                     </div>
                   </div>
-<<<<<<< HEAD
-                ))}
-              </div>
-            ) : error ? (
-              <div className="bg-white rounded-lg shadow-md p-12 text-center">
-                <Search className="w-24 h-24 text-red-400 mx-auto mb-4" />
-                <h2 className="text-xl font-bold text-gray-900 mb-2">Error en la busqueda</h2>
-                <p className="text-red-600 mb-4">{error}</p>
-                <button onClick={() => window.location.reload()}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
-                  Reintentar
-                </button>
-              </div>
-            ) : results.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {results.map(product => (
-                  <ProductCard key={product.id} product={product} />
-=======
->>>>>>> desarrollo
                 ))}
               </div>
             ) : products.length > 0 ? (
@@ -323,14 +229,6 @@ function SearchResults() {
                 <Search className="w-24 h-24 text-gray-400 mx-auto mb-4" />
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Sin resultados</h2>
                 <p className="text-gray-600 mb-6">
-<<<<<<< HEAD
-                  {query ? `No se encontraron productos para "${query}"` : 'No se encontraron productos con los filtros seleccionados'}
-                </p>
-                <div className="space-x-4">
-                  <button onClick={() => { clearFilters(); navigate('/search'); }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
-                    Limpiar Busqueda
-=======
                   {query
                     ? `No se encontraron productos que coincidan con "${query}"`
                     : 'No se encontraron productos con los filtros seleccionados'
@@ -345,7 +243,6 @@ function SearchResults() {
                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
                   >
                     Limpiar Búsqueda
->>>>>>> desarrollo
                   </button>
                   <button onClick={() => navigate('/productos')}
                     className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg transition-colors">

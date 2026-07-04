@@ -2,11 +2,8 @@ import { HashRouter , Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { AdminAuthProvider, useAdminAuth } from './contexts/AdminAuthContext';
 import { CartProvider } from './contexts/CartContext';
-<<<<<<< HEAD
-import { ExchangeRateProvider } from './contexts/ExchangeRateContext';
-=======
 import { WishlistProvider } from './contexts/WishlistContext';
->>>>>>> desarrollo
+import { ExchangeRateProvider } from './contexts/ExchangeRateContext';
 import { Toaster } from 'react-hot-toast';
 
 import Home from './pages/ecomerce/home';
@@ -22,11 +19,7 @@ import MisPedidos from './pages/ecomerce/misPedidos';
 import ForgotPasswordForm from './components/formularios/forgotPasswordForm';
 import SearchResults from './pages/ecomerce/searchResults';
 import ProductDetailPage from './pages/ecomerce/productDetail';
-<<<<<<< HEAD
-import AdminRecovery from './pages/ecomerce/adminRecovery';
-=======
 import WishlistPage from './pages/ecomerce/wishlist';
->>>>>>> desarrollo
 
 
 import FormAdmin from './components/adminComponents/LoginAdmin';
@@ -78,11 +71,7 @@ function App() {
                   <Route path='/micuenta' element={<MiCuenta/>}></Route>
                   <Route path='/mis-pedidos' element={<MisPedidos/>}></Route>
                   <Route path="/search" element={<SearchResults />}></Route>
-<<<<<<< HEAD
-                  <Route path="/admin-recovery" element={<AdminRecovery />}></Route>
-=======
                   <Route path="/wishlist" element={<WishlistPage />}></Route>
->>>>>>> desarrollo
                 </Route>
 
                 <Route path="/admin" element={<FormAdmin />}></Route>

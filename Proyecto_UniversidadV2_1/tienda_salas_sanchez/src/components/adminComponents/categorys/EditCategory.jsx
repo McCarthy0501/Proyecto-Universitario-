@@ -23,9 +23,6 @@ export default function EditCategory(){
         
         const peticionApi =async ()=>{
             try {
-<<<<<<< HEAD
-               const res= await fetch(`${API_BASE_URL}/api/edit_categorias/${id}/`);
-=======
                const res= await fetch(`http://localhost:8000/api/edit_categorias/${id}/`, {
                 headers: {
                     'Authorization': token ? `Bearer ${token}` : '',
@@ -36,7 +33,6 @@ export default function EditCategory(){
                    navigate("/adminPanel");
                    return;
                }
->>>>>>> desarrollo
                const data=await res.json() 
                setNewName({
                 category_name:data.category_name,
