@@ -51,7 +51,7 @@ function AggCategory() {
             body: formData,
           });
           if(!solicitud.ok){
-            new console.error("error al crear la categoria");
+            console.error("error al crear la categoria");
             
           }const resultado=await solicitud.json();
           console.log("Respuesta del backend:", resultado);

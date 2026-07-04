@@ -6,11 +6,15 @@ import { useRelatedProducts } from '../../Hooks/main/useProductSearch';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Star, ShoppingCart, Plus, Minus, Heart, Truck, Shield, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, ShoppingCart, Plus, Minus, Heart, Truck, Shield, RotateCcw, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import ProductCard from '../../components/complementos/productCard';
+<<<<<<< HEAD
 import PriceDisplay from '../../components/complementos/PriceDisplay';
+=======
+import Breadcrumb from '../../components/complementos/Breadcrumb';
+>>>>>>> desarrollo
 
 function ProductDetailPage() {
   const { id } = useParams();
@@ -140,18 +144,19 @@ function ProductDetailPage() {
   const tallas = variations.filter(v => v.variation_category === 'talla');
 
   return (
+    <>
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-7xl mx-auto px-4 py-8"
+      className="max-w-7xl mx-auto px-4 pt-4 pb-20 md:pb-8"
     >
-      <button 
-        onClick={() => navigate(-1)}
-        className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
-      >
-        <ChevronLeft className="w-5 h-5" />
-        <span>Volver</span>
-      </button>
+      <Breadcrumb
+        items={[
+          { label: 'Inicio', to: '/' },
+          { label: 'Productos', to: '/productos' },
+        ]}
+        currentLabel={product?.product_name}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
         <div className="relative">
@@ -212,17 +217,26 @@ function ProductDetailPage() {
 
           <div className="flex items-center gap-2 mb-4">
             {product.is_available ? (
-              <span className="text-green-600 flex items-center gap-1">
-                <span className="w-2 h-2 bg-green-600 rounded-full"></span>
-                Disponible
-              </span>
+              product.stock > 0 && product.stock <= 5 ? (
+                <span className="text-orange-600 flex items-center gap-1 font-medium">
+                  <AlertTriangle size={16} />
+                  ¡Solo quedan {product.stock}!
+                </span>
+              ) : (
+                <span className="text-green-600 flex items-center gap-1">
+                  <span className="w-2 h-2 bg-green-600 rounded-full"></span>
+                  Disponible
+                </span>
+              )
             ) : (
               <span className="text-red-600 flex items-center gap-1">
                 <span className="w-2 h-2 bg-red-600 rounded-full"></span>
                 No disponible
               </span>
             )}
-            <span className="text-gray-500">({product.stock} unidades en stock)</span>
+            {product.stock > 5 && (
+              <span className="text-gray-500">({product.stock} unidades en stock)</span>
+            )}
           </div>
 
           {colors.length > 0 && (
@@ -434,6 +448,48 @@ function ProductDetailPage() {
         </div>
       )}
     </motion.div>
+
+    {product.is_available && (
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-3">
+        <div className="flex items-center justify-between max-w-lg mx-auto">
+          <div>
+            <span className="text-2xl font-bold text-gray-900">${product.price}</span>
+            {product.original_price && product.original_price > product.price && (
+              <span className="text-sm text-gray-400 line-through ml-2">
+                ${product.original_price}
+              </span>
+            )}
+          </div>
+          {!isProductInCart ? (
+            <button
+              onClick={handleAddToCart}
+              disabled={!product.is_available || product.stock === 0}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium disabled:bg-gray-400"
+            >
+              Agregar al carrito
+            </button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => updateQuantity(product.id, cartQuantity - 1)}
+                className="p-2 bg-gray-200 hover:bg-gray-300 rounded-full"
+              >
+                <Minus className="w-4 h-4" />
+              </button>
+              <span className="w-10 text-center font-medium">{cartQuantity}</span>
+              <button
+                onClick={() => updateQuantity(product.id, cartQuantity + 1)}
+                disabled={cartQuantity >= product.stock}
+                className="p-2 bg-gray-200 hover:bg-gray-300 rounded-full disabled:opacity-50"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+    </>
   );
 }
 

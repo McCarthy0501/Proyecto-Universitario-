@@ -1,14 +1,14 @@
-import { User, LogOut, Settings } from 'lucide-react';
-import { UserPlus } from 'lucide-react';
+import { User, LogOut, Settings, UserPlus, Heart } from 'lucide-react';
 import ShopingCart from "../complementos/shopingCart";
 import { useAuth } from '../../contexts/AuthContext';
+import { useWishlist } from '../../contexts/WishlistContext';
 import { useNavigate } from 'react-router-dom';
 
 function CajitaUser() {
-    const { isAuthenticated, user, logout, refreshUserInfo } = useAuth();
+    const { isAuthenticated, user, logout } = useAuth();
+    const { wishlistCount } = useWishlist();
     const navigate = useNavigate();
 
-    // Debug: Mostrar datos del usuario
     console.log('🔍 Datos del usuario en cajaUers:', user);
     console.log('🔍 Usuario autenticado:', isAuthenticated);
 
@@ -25,6 +25,17 @@ function CajitaUser() {
     return (
       <>
         <div className="flex items-center mt-4 md:mt-0 space-x-2 md:space-x-4">
+          <a
+            href="/#/wishlist"
+            className="relative p-2 text-gray-300 hover:text-white"
+          >
+            <Heart size={20} />
+            {wishlistCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
+                {wishlistCount > 9 ? '9+' : wishlistCount}
+              </span>
+            )}
+          </a>
           <ShopingCart />
 
           {isAuthenticated ? (
@@ -88,4 +99,4 @@ function CajitaUser() {
     
 }
 
-export default CajitaUser
+export default CajitaUser;

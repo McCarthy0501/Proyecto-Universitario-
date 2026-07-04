@@ -13,6 +13,8 @@ class Product(models.Model):
     price = models.IntegerField()
     images = models.ImageField(upload_to='photos/products')
     stock = models.IntegerField()
+    is_new = models.BooleanField(default=False)
+    original_price = models.IntegerField(null=True, blank=True)
     is_available = models.BooleanField(default=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     created_date = models.DateTimeField(auto_now_add=True)

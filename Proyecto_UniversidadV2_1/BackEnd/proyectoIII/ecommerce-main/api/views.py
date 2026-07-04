@@ -32,6 +32,7 @@ class Categorylist(viewsets.ModelViewSet):
     queryset=Category.objects.all()
     serializer_class=CategorySerializer
     permission_classes = [AllowAny]  # Las categorías deben ser públicas
+    pagination_class = None
 
 #endpoint de productos
 @method_decorator(csrf_exempt, name='dispatch')
@@ -92,9 +93,12 @@ class ProductByCategory(APIView):
             )
             # 🧠 Serializamos los productos para convertirlos a formato JSON
         # Pasamos el 'request' en el contexto para que las URLs de imagen sean absolutas
-        serializer = ProductSerializer(productos, many=True, context={'request': request})
+        from rest_framework.pagination import PageNumberPagination
+        paginator = PageNumberPagination()
+        result_page = paginator.paginate_queryset(productos, request)
+        serializer = ProductSerializer(result_page, many=True, context={'request': request})
         #devovlemos la respuesta al front
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return paginator.get_paginated_response(serializer.data)
     """
     many=True → indica que son varios productos (un queryset), no uno solo.
     context={'request': request} → se pasa para que, por ejemplo, los campos de imagen generen URLs completas.
@@ -165,13 +169,13 @@ class AggCategorys(APIView):
             return Response({"error": "No autorizado"}, status=status.HTTP_403_FORBIDDEN)
             
         category_name=request.data.get("category_name")
-        descritption=request.data.get("description")
+        description=request.data.get("description")
         category_slug=request.data.get("slug")
         cat_image=request.FILES.get("cat_image")
 
         Category.objects.create(
             category_name=category_name,
-            description=descritption,
+            description=description,
             slug=category_slug,
             cat_image=cat_image
 
@@ -190,16 +194,25 @@ class AggProduct(APIView):
     def post(self,request):
         if not request.user.is_staff:
             return Response({"error": "No autorizado"}, status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            product_name=request.data.get("product_name")
+            slug=request.data.get("slug")
+            description=request.data.get("description")
+            price=request.data.get("price")
+            images=request.FILES.get("images")
+            stock=request.data.get("stock")
+            category_id=request.data.get("category")
             
-        product_name=request.data.get("product_name")
-        slug=request.data.get("slug")
-        description=request.data.get("description")
-        price=request.data.get("price")
-        images=request.FILES.get("images")
-        stock=request.data.get("stock")
-        category_id=request.data.get("category")
-        category=Category.objects.get(id=category_id)
+            if not category_id:
+                return Response({"error": "La categoría es requerida"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            try:
+                category=Category.objects.get(id=category_id)
+            except Category.DoesNotExist:
+                return Response({"error": "La categoría no existe"}, status=status.HTTP_400_BAD_REQUEST)
 
+<<<<<<< HEAD
         if images:
             if images.size > 5 * 1024 * 1024:
                 return Response({"error": "La imagen no debe superar 5MB"}, status=status.HTTP_400_BAD_REQUEST)
@@ -218,10 +231,23 @@ class AggProduct(APIView):
             stock=stock,
             category=category
         )
+=======
+            Product.objects.create(
+                product_name=product_name,
+                slug=slug,
+                description=description,
+                price=price,
+                images=images,
+                stock=stock,
+                category=category
+            )
+>>>>>>> desarrollo
 
-        return Response({
-            "message":"Producto creado con exito"
-        })
+            return Response({
+                "message":"Producto creado con exito"
+            })
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 #edita las categorias
 @method_decorator(csrf_exempt, name='dispatch')
@@ -630,6 +656,7 @@ class ProductSearchView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, format=None):
+<<<<<<< HEAD
         from django.db.models import Q
 
         query = request.query_params.get('q', '')
@@ -638,6 +665,17 @@ class ProductSearchView(APIView):
         max_price = request.query_params.get('max_price', '')
         sort = request.query_params.get('sort', '')
         is_available = request.query_params.get('is_available', '')
+=======
+        from django.db.models import Q, Avg, F
+        
+        query = request.query_params.get('q', '')
+        category_id = request.query_params.get('category', None)
+        min_price = request.query_params.get('min_price', None)
+        max_price = request.query_params.get('max_price', None)
+        sort = request.query_params.get('sort', '-created_date')
+        is_available = request.query_params.get('is_available', None)
+        min_rating = request.query_params.get('min_rating', None)
+>>>>>>> desarrollo
 
         products = Product.objects.all()
 
@@ -665,6 +703,7 @@ class ProductSearchView(APIView):
         if is_available in ('true', 'false'):
             products = products.filter(is_available=is_available == 'true')
 
+<<<<<<< HEAD
         sort_map = {
             'price_asc': 'price',
             'price_desc': '-price',
@@ -674,9 +713,29 @@ class ProductSearchView(APIView):
         }
         order = sort_map.get(sort, '-created_date')
         products = products.order_by(order)
+=======
+        # Filtro por rating mínimo
+        if min_rating:
+            products = products.annotate(avg_rating=Avg('reviewrating__rating')).filter(avg_rating__gte=float(min_rating))
 
-        serializer = ProductSerializer(products, many=True, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        # Ordenamiento
+        if sort == 'price_asc':
+            products = products.order_by('price')
+        elif sort == 'price_desc':
+            products = products.order_by('-price')
+        elif sort == 'name':
+            products = products.order_by('product_name')
+        elif sort == 'rating':
+            products = products.annotate(avg_rating=Avg('reviewrating__rating')).order_by(F('avg_rating').desc(nulls_last=True))
+        else:
+            products = products.order_by('-created_date')
+>>>>>>> desarrollo
+
+        from rest_framework.pagination import PageNumberPagination
+        paginator = PageNumberPagination()
+        result_page = paginator.paginate_queryset(products, request)
+        serializer = ProductSerializer(result_page, many=True, context={'request': request})
+        return paginator.get_paginated_response(serializer.data)
 
 
 # Productos relacionados (misma categoría)

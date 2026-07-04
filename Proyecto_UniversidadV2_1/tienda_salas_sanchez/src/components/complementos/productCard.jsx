@@ -1,18 +1,24 @@
 
-
 import { useState } from 'react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, Plus, Minus, Trash2, Eye, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
+<<<<<<< HEAD
 import PriceDisplay from './PriceDisplay';
+=======
+import Badge from './Badge';
+import WishlistButton from './WishlistButton';
+import ProductPreviewModal from '../productPreviewModal';
+>>>>>>> desarrollo
 
 function ProductCard({product}) {
     const { addToCart, removeFromCart, updateQuantity, isInCart, getProductQuantity } = useCart();
     const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
     const [quantity, setQuantity] = useState(1);
+    const [modalOpen, setModalOpen] = useState(false);
     const isProductInCart = isInCart(product.id);
     const cartQuantity = getProductQuantity(product.id);
     
@@ -22,6 +28,11 @@ function ProductCard({product}) {
     const stockClass = isAvailable ? 'text-green-600' : 'text-red-600';
     const averageRating = product.average_rating || 0;
     const reviewCount = product.review_count || 0;
+
+    const discountPercent = product.original_price && product.original_price > product.price
+        ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
+        : null;
+    const isSoldOut = !product.is_available || stock === 0;
 
     const handleAddToCart = (e) => {
         e.stopPropagation();
@@ -84,9 +95,20 @@ function ProductCard({product}) {
               alt={product.product_name}
               className="w-full h-48 object-cover object-center"
             />
-            <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-opacity">
+            {isSoldOut && <Badge variant="sold-out" text="Agotado" />}
+            {!isSoldOut && discountPercent && (
+              <Badge variant="discount" text={`-${discountPercent}%`} />
+            )}
+            {!isSoldOut && !discountPercent && product.is_new && (
+              <Badge variant="new" text="Nuevo" />
+            )}
+            <WishlistButton productId={product.id} />
+            <button
+              onClick={(e) => { e.stopPropagation(); setModalOpen(true); }}
+              className="absolute top-2 right-10 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-opacity"
+            >
               <Eye className="w-5 h-5" />
-            </div>
+            </button>
           </div>
           <div className="p-6">
             <h3 className="text-xl font-bold text-gray-900 mb-2 truncate hover:text-blue-600 transition-colors">
@@ -94,7 +116,24 @@ function ProductCard({product}) {
             </h3>
             
             <div className="flex items-center justify-between mb-2">
+<<<<<<< HEAD
                 <PriceDisplay priceUsd={product.price} />
+=======
+                {discountPercent ? (
+                  <div className="flex items-center gap-2">
+                    <p className="text-xl font-semibold text-indigo-600">
+                      ${product.price}
+                    </p>
+                    <p className="text-sm text-gray-400 line-through">
+                      ${product.original_price}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-xl font-semibold text-indigo-600">
+                    ${product.price}
+                  </p>
+                )}
+>>>>>>> desarrollo
                 {reviewCount > 0 && (
                     <div className="flex items-center gap-1">
                         {renderStars(averageRating)}
@@ -174,6 +213,12 @@ function ProductCard({product}) {
             )}
           </div>
         </div>
+
+        <ProductPreviewModal
+          product={product}
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+        />
       </>
     );
 }

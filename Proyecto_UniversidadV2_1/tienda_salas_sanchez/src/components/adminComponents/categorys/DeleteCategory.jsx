@@ -8,13 +8,22 @@ export default function DeleteCategory() {
     const {id}=useParams();
     const navegacion= useNavigate();
     const [delte, setdelete] = useState(null);
-    useEffect(()=>{
+useEffect(()=>{
+        const token = localStorage.getItem("adminToken") || localStorage.getItem("accessToken");
         const peticion= async ()=>{
             try {
+<<<<<<< HEAD
                 const result= await fetch(`${API_BASE_URL}/api/delete_categorias/${id}/`);
+=======
+                const result= await fetch(`http://localhost:8000/api/delete_categorias/${id}/`, {
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : '',
+                    },
+                });
+>>>>>>> desarrollo
                 const data = await result.json();
                 setdelete(data);
-             
+              
             } catch (error) {
                 console.error(error);
                 
@@ -37,11 +46,12 @@ export default function DeleteCategory() {
 
     
 
-    //formulario
+//formulario
     const deleteCategorySubmit=async (e) =>{
          e.preventDefault();
-
+         const token = localStorage.getItem("adminToken") || localStorage.getItem("accessToken");
          
+<<<<<<< HEAD
         
         try {
             const solicitud = await fetch(`${API_BASE_URL}/api/delete_categorias/${id}/`,{
@@ -52,12 +62,27 @@ export default function DeleteCategory() {
             
             alert("Se elimino la categoria con exito");
             navegacion("/adminPanel");
+=======
+         
+         
+         try {
+             const solicitud = await fetch(`http://localhost:8000/api/delete_categorias/${id}/`,{
+                 method: "DELETE",
+                 headers: {
+                     'Authorization': token ? `Bearer ${token}` : '',
+                 },
+             });
+             if (!solicitud.ok) {throw new Error("Error al eliminar la categoría");}
+             
+             alert("Se elimino la categoria con exito");
+             navegacion("/adminPanel");
+>>>>>>> desarrollo
 
-            
-        } catch (error) {
-            console.log(error)
-            
-        }
+             
+         } catch (error) {
+             console.log(error)
+             
+         }
     }
     return (
         
