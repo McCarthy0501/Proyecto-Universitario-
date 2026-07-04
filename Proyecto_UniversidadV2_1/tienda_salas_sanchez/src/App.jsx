@@ -3,6 +3,8 @@ import { AuthProvider } from './contexts/AuthContext';
 import { AdminAuthProvider, useAdminAuth } from './contexts/AdminAuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { WishlistProvider } from './contexts/WishlistContext';
+import { RecentlyViewedProvider } from './contexts/RecentlyViewedContext';
+import { CompareProvider } from './contexts/CompareContext';
 import { ExchangeRateProvider } from './contexts/ExchangeRateContext';
 import { Toaster } from 'react-hot-toast';
 
@@ -20,6 +22,10 @@ import ForgotPasswordForm from './components/formularios/forgotPasswordForm';
 import SearchResults from './pages/ecomerce/searchResults';
 import ProductDetailPage from './pages/ecomerce/productDetail';
 import WishlistPage from './pages/ecomerce/wishlist';
+import NotFound from './pages/ecomerce/NotFound';
+import ScrollToTop from './components/complementos/ScrollToTop';
+import WhatsAppButton from './components/complementos/WhatsAppButton';
+import CompareBar from './components/complementos/CompareBar';
 
 
 import FormAdmin from './components/adminComponents/LoginAdmin';
@@ -30,83 +36,90 @@ import AdminLayout from './pages/admin/AdminLayout';
 import AdminPanel from './pages/admin/AdminPanel';
 
 function ProtectedAdminRoute({ children }) {
-  const { isAuthenticated, loading } = useAdminAuth();
+ const { isAuthenticated, loading } = useAdminAuth();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+ if (loading) {
+ return (
+ <div className="min-h-screen flex items-center justify-center bg-gray-100">
+ <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+ </div>
+ );
+ }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/admin" replace />;
-  }
+ if (!isAuthenticated) {
+ return <Navigate to="/admin" replace />;
+ }
 
-  return children;
+ return children;
 }
 
 function App() {
-  return (
-    <>
-      <Toaster position="top-right" />
-      <AuthProvider>
-        <CartProvider>
-          <WishlistProvider>
-          <AdminAuthProvider>
-            <ExchangeRateProvider>
-            <div className="flex flex-col min-h-screen bg-gray-100">
-              <Routes>
-                <Route element={<MainLayout />}>
-                  <Route path="/" element={<Home />}></Route>
-                  <Route path="/login" element={<Login />}></Route>
-                  <Route path="/register" element={<Register />}></Route>
-                  <Route path="/forgot-password" element={<ForgotPasswordForm />}></Route>
-                  <Route path="/productos" element={<MostrarProductos />}></Route>
-                  <Route path="/producto/:id" element={<ProductDetailPage />}></Route>
-                  <Route path="/categorias" element={<MostrarCategorys />}></Route>
-                  <Route path='/categoriasPorProductos/:id' element={<MostrarProductosPorCategorias/>}></Route>
-                  <Route path="/cart" element={<CartPage />}></Route>
-                  <Route path='/micuenta' element={<MiCuenta/>}></Route>
-                  <Route path='/mis-pedidos' element={<MisPedidos/>}></Route>
-                  <Route path="/search" element={<SearchResults />}></Route>
-                  <Route path="/wishlist" element={<WishlistPage />}></Route>
-                </Route>
+ return (
+ <>
+ <Toaster position="top-right" />
+ <ScrollToTop />
+ <WhatsAppButton />
+ <CompareProvider>
+ <AuthProvider>
+ <CartProvider>
+ <WishlistProvider>
+ <RecentlyViewedProvider>
+ <AdminAuthProvider>
+ <ExchangeRateProvider>
+ <div className="flex flex-col min-h-screen bg-gray-100">
+ <Routes>
+ <Route element={<MainLayout />}>
+ <Route path="/" element={<Home />}></Route>
+ <Route path="/login" element={<Login />}></Route>
+ <Route path="/register" element={<Register />}></Route>
+ <Route path="/forgot-password" element={<ForgotPasswordForm />}></Route>
+ <Route path="/productos" element={<MostrarProductos />}></Route>
+ <Route path="/producto/:id" element={<ProductDetailPage />}></Route>
+ <Route path="/categorias" element={<MostrarCategorys />}></Route>
+ <Route path='/categoriasPorProductos/:id' element={<MostrarProductosPorCategorias/>}></Route>
+ <Route path="/cart" element={<CartPage />}></Route>
+ <Route path='/micuenta' element={<MiCuenta/>}></Route>
+ <Route path='/mis-pedidos' element={<MisPedidos/>}></Route>
+ <Route path="/search" element={<SearchResults />}></Route>
+ <Route path="/wishlist" element={<WishlistPage />}></Route>
+ </Route>
 
-                <Route path="/admin" element={<FormAdmin />}></Route>
+ <Route path="/admin" element={<FormAdmin />}></Route>
 
-                <Route element={<AdminLayout />}>
-                  <Route path='/adminPanel' element={
-                    <ProtectedAdminRoute>
-                      <AdminPanel/>
-                    </ProtectedAdminRoute>
-                  }></Route>
-                  <Route path='/editcategory/:id' element={
-                    <ProtectedAdminRoute>
-                      <EditCategory/>
-                    </ProtectedAdminRoute>
-                  }></Route>
-                  <Route path='/deletecategory/:id' element={
-                    <ProtectedAdminRoute>
-                      <DeleteCategory/>
-                    </ProtectedAdminRoute>
-                  }></Route>
-                  <Route path='/admin/editproduct/:id' element={
-                    <ProtectedAdminRoute>
-                      <EditProducts/>
-                    </ProtectedAdminRoute>
-                  }></Route>
-                </Route>
-              </Routes>
-            </div>
-            </ExchangeRateProvider>
-          </AdminAuthProvider>
-          </WishlistProvider>
-        </CartProvider>
-      </AuthProvider>
-    </>
-  );
+ <Route element={<AdminLayout />}>
+ <Route path='/adminPanel' element={
+ <ProtectedAdminRoute>
+ <AdminPanel/>
+ </ProtectedAdminRoute>
+ }></Route>
+ <Route path='/editcategory/:id' element={
+ <ProtectedAdminRoute>
+ <EditCategory/>
+ </ProtectedAdminRoute>
+ }></Route>
+ <Route path='/deletecategory/:id' element={
+ <ProtectedAdminRoute>
+ <DeleteCategory/>
+ </ProtectedAdminRoute>
+ }></Route>
+ <Route path='/admin/editproduct/:id' element={
+ <ProtectedAdminRoute>
+ <EditProducts/>
+ </ProtectedAdminRoute>
+ }></Route>
+ </Route>
+ </Routes>
+ </div>
+ <CompareBar />
+ </ExchangeRateProvider>
+ </AdminAuthProvider>
+ </RecentlyViewedProvider>
+ </WishlistProvider>
+ </CartProvider>
+ </AuthProvider>
+ </CompareProvider>
+ </>
+ );
 }
 
 export default App;

@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 
-const API_BASE = 'http://localhost:8000';
+import { API_BASE_URL } from '../../api';
+
+const API_BASE = API_BASE_URL;
 
 export const useProducts = () => {
   const [data, setData] = useState({ results: [], count: 0 });

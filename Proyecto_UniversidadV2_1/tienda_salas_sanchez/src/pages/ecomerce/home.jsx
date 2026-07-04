@@ -7,118 +7,127 @@ import OfferBanner from "../../components/complementos/OffertCard";
 import BrandStatement from "../../components/complementos/BrandStatement";
 import TopSellingProducts from "../../components/main/ProductsTop";
 import Recomendacion from "../../components/complementos/Recomendacion";
+import RecentlyViewedSection from "../../components/complementos/RecentlyViewedSection";
 import { fadeUp,fadeDown,fadeRight,fadeLef } from "../../animaciones/animaciones";
 
 
 export default function Home() {
-  return (
-    <>
-     
+ return (
+ <>
+ 
 
 <main className="flex flex-col items-center space-y-12 p-4 sm:p-6 md:p-8 max-w-[80rem] mx-auto">
-    
-    {/* 1. SIMPLE SLIDER (HERO) - Debe aparecer de inmediato */}
-    <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="visible"
-        // Aparece casi inmediatamente al cargar (viewport: 0.1)
-        viewport={{ once: true, amount: 0.1 }} 
-        transition={{ duration: 0.8, ease: "easeOut" }} // Sin delay
-        className="w-full"
-    >
-        <SimpleSlider />
-    </motion.div>
+ 
+ {/* 1. SIMPLE SLIDER (HERO) - Debe aparecer de inmediato */}
+ <motion.div
+ variants={fadeUp}
+ initial="hidden"
+ whileInView="visible"
+ // Aparece casi inmediatamente al cargar (viewport: 0.1)
+ viewport={{ once: true, amount: 0.1 }} 
+ transition={{ duration: 0.8, ease: "easeOut" }} // Sin delay
+ className="w-full"
+ >
+ <SimpleSlider />
+ </motion.div>
 
-    {/* 2. BENEFITS - Aparece justo después del Hero (Confianza Inmediata) */}
-    <motion.div
-        variants={fadeUp} // Entrada desde abajo
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }} // Pequeño delay
-        className="w-full"
-    >
-        <Recomendacion />
-    </motion.div>
+ {/* 2. BENEFITS - Aparece justo después del Hero (Confianza Inmediata) */}
+ <motion.div
+ variants={fadeUp} // Entrada desde abajo
+ initial="hidden"
+ whileInView="visible"
+ viewport={{ once: true, amount: 0.5 }}
+ transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }} // Pequeño delay
+ className="w-full"
+ >
+ <Recomendacion />
+ </motion.div>
 
-    {/* 3. OFFER BANNER - CTA Fuerte, usa fadeDown para un contraste visual con Benefits */}
-    <motion.div
-        variants={fadeDown} // Entrada desde arriba
-        initial="desaparece" 
-        whileInView="aparece" 
-        viewport={{ once: true, amount: 0.5 }} 
-        transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }} // Sigue el flujo
-        className="w-full"
-    >
-        <OfferBanner/>
-    </motion.div>
-    
-    {/* 4. MOSTRAR CATEGORIAS - Guía, entrada lateral izquierda */}
-    <motion.div
-        variants={fadeLef}
-        initial="desaparece"
-        whileInView="aparece"
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
-        className="w-full"
-    >
-        <MostrarCategorys />
-    </motion.div>
+ {/* 3. OFFER BANNER - CTA Fuerte, usa fadeDown para un contraste visual con Benefits */}
+ <motion.div
+ variants={fadeDown} // Entrada desde arriba
+ initial="desaparece" 
+ whileInView="aparece" 
+ viewport={{ once: true, amount: 0.5 }} 
+ transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }} // Sigue el flujo
+ className="w-full"
+ >
+ <OfferBanner/>
+ </motion.div>
+ 
+ {/* 4. MOSTRAR CATEGORIAS - Guía, entrada lateral izquierda */}
+ <motion.div
+ variants={fadeLef}
+ initial="desaparece"
+ whileInView="aparece"
+ viewport={{ once: true, amount: 0.5 }}
+ transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
+ className="w-full"
+ >
+ <MostrarCategorys />
+ </motion.div>
 
-    {/* 5. TOP SELLING PRODUCTS - Productos, entrada desde abajo (visualización del grid) */}
-    <motion.div
-        variants={fadeUp} 
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}
-        className="w-full"
-    >
-        <TopSellingProducts/>
-    </motion.div>
+ {/* 5. TOP SELLING PRODUCTS - Productos, entrada desde abajo (visualización del grid) */}
+ <motion.div
+ variants={fadeUp} 
+ initial="hidden"
+ whileInView="visible"
+ viewport={{ once: true, amount: 0.5 }}
+ transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}
+ className="w-full"
+ >
+ <TopSellingProducts/>
+ </motion.div>
 
-    {/* 6. TESTIMONIALS - Prueba Social, entrada lateral derecha */}
-    <motion.div
-        variants={fadeRight}
-        initial="desaparece"
-        whileInView="aparece"
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 0.8, ease: "easeOut", delay: 0.5 }}
-        className="w-full"
-    >
-        <Testimonials />
-    </motion.div>
+ {/* 6. TESTIMONIALS - Prueba Social, entrada lateral derecha */}
+ <motion.div
+ variants={fadeRight}
+ initial="desaparece"
+ whileInView="aparece"
+ viewport={{ once: true, amount: 0.5 }}
+ transition={{ duration: 0.8, ease: "easeOut", delay: 0.5 }}
+ className="w-full"
+ >
+ <Testimonials />
+ </motion.div>
 
-    {/* 7. BRAND STATEMENT - Bloque de SEO/Marca, entrada desde abajo */}
-    <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 0.8, ease: "easeOut", delay: 0.6 }}
-        className="w-full"
-    >
-        <BrandStatement/>
-    </motion.div>
+ {/* 7. BRAND STATEMENT - Bloque de SEO/Marca, entrada desde abajo */}
+ <motion.div
+ variants={fadeUp}
+ initial="hidden"
+ whileInView="visible"
+ viewport={{ once: true, amount: 0.5 }}
+ transition={{ duration: 0.8, ease: "easeOut", delay: 0.6 }}
+ className="w-full"
+ >
+ <BrandStatement/>
+ </motion.div>
 
+ {/* 8. RECENTLY VIEWED */}
+ <motion.div
+ variants={fadeUp}
+ initial="hidden"
+ whileInView="visible"
+ viewport={{ once: true, amount: 0.5 }}
+ transition={{ duration: 0.8, ease: "easeOut", delay: 0.65 }}
+ className="w-full"
+ >
+ <RecentlyViewedSection />
+ </motion.div>
 
-
-
-
-    {/* 8. NEWSLETTER - Cierre final, entrada desde arriba */}
-    <motion.div
-        variants={fadeDown}
-        initial="desaparece"
-        whileInView="aparece"
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 0.8, ease: "easeOut", delay: 0.7 }}
-        className="w-full"
-    >
-        <Newsletter />
-    </motion.div>
-    
+ {/* 9. NEWSLETTER - Cierre final, entrada desde arriba */}
+ <motion.div
+ variants={fadeDown}
+ initial="desaparece"
+ whileInView="aparece"
+ viewport={{ once: true, amount: 0.5 }}
+ transition={{ duration: 0.8, ease: "easeOut", delay: 0.7 }}
+ className="w-full"
+ >
+ <Newsletter />
+ </motion.div>
+ 
 </main>
-    </>
-  );
+ </>
+ );
 }

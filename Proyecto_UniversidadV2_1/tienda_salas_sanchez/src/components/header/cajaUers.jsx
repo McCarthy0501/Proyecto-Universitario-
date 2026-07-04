@@ -3,14 +3,12 @@ import ShopingCart from "../complementos/shopingCart";
 import { useAuth } from '../../contexts/AuthContext';
 import { useWishlist } from '../../contexts/WishlistContext';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 function CajitaUser() {
     const { isAuthenticated, user, logout } = useAuth();
     const { wishlistCount } = useWishlist();
     const navigate = useNavigate();
-
-    console.log('🔍 Datos del usuario en cajaUers:', user);
-    console.log('🔍 Usuario autenticado:', isAuthenticated);
 
     const miCuenta=()=>{
       navigate('/micuenta')
@@ -18,7 +16,7 @@ function CajitaUser() {
 
     const handleLogout = () => {
         logout();
-        alert("Sesion Cerrada con Exito!!")
+        toast.success("Sesion Cerrada con Exito!!")
         navigate('/');
     };
 

@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
-const API_BASE = 'http://localhost:8000';
+import { API_BASE_URL } from '../../api';
+
+const API_BASE = API_BASE_URL;
 
 export const useProductSearch = () => {
   const [products, setProducts] = useState([]);

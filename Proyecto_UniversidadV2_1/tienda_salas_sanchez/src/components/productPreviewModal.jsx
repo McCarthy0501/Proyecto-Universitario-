@@ -4,6 +4,7 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../api';
+import toast from 'react-hot-toast';
 
 function ProductPreviewModal({ product, isOpen, onClose }) {
   const { addToCart, isInCart, getProductQuantity, updateQuantity } = useCart();
@@ -18,7 +19,6 @@ function ProductPreviewModal({ product, isOpen, onClose }) {
   useEffect(() => {
     if (isOpen && product) {
       fetchReviews();
-      calculateAverageRating();
     }
   }, [isOpen, product]);
 
@@ -28,33 +28,30 @@ function ProductPreviewModal({ product, isOpen, onClose }) {
       if (response.ok) {
         const data = await response.json();
         setReviews(data);
+        const avg = data.length > 0
+          ? data.reduce((sum, r) => sum + r.rating, 0) / data.length
+          : 0;
+        setRating(avg);
       }
     } catch (error) {
       console.error('Error al obtener reseñas:', error);
     }
   };
 
-  const calculateAverageRating = () => {
-    if (reviews.length > 0) {
-      const avg = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
-      setRating(avg);
-    }
-  };
-
   const handleAddToCart = () => {
     if (!isAuthenticated) {
-      alert('Debes iniciar sesión para agregar productos al carrito');
+      toast.error('Debes iniciar sesión para agregar productos al carrito');
       navigate('/login');
       return;
     }
     addToCart(product, quantity);
-    alert('Producto agregado al carrito');
+    toast.success('Producto agregado al carrito');
   };
 
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     if (!isAuthenticated) {
-      alert('Debes iniciar sesión para dejar una reseña');
+      toast.error('Debes iniciar sesión para dejar una reseña');
       navigate('/login');
       return;
     }
@@ -78,13 +75,13 @@ function ProductPreviewModal({ product, isOpen, onClose }) {
         setComment('');
         setRating(0);
         fetchReviews();
-        alert('✅ Reseña agregada exitosamente');
+        toast.success('Reseña agregada exitosamente');
       } else {
-        alert('❌ Error al agregar la reseña');
+        toast.error('Error al agregar la reseña');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('❌ Error de conexión');
+      toast.error('Error de conexión');
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaBoxes, FaUsers, FaSignOutAlt, FaChevronDown, FaChevronRight, FaBoxOpen, FaClipboardList, FaChartBar, FaHome, FaDollarSign } from "react-icons/fa";
+import { Package, Users, LogOut, ChevronDown, ChevronRight, PackageOpen, ClipboardList, BarChart3, Home, DollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAdminAuth } from "../../contexts/AdminAuthContext";
@@ -23,12 +23,12 @@ export default function AdminSidebar({ setActiveSection, activeSection }) {
   };
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: FaChartBar },
-    { id: 'categorias', label: 'Categorías', icon: FaBoxes },
-    { id: 'productos', label: 'Productos', icon: FaBoxOpen },
-    { id: 'usuarios', label: 'Usuarios', icon: FaUsers },
-    { id: 'ordenes', label: 'Órdenes', icon: FaClipboardList },
-    { id: 'tasa', label: 'Tasa BCV', icon: FaDollarSign },
+    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+    { id: 'categorias', label: 'Categorias', icon: Package },
+    { id: 'productos', label: 'Productos', icon: PackageOpen },
+    { id: 'usuarios', label: 'Usuarios', icon: Users },
+    { id: 'ordenes', label: 'Ordenes', icon: ClipboardList },
+    { id: 'tasa', label: 'Tasa BCV', icon: DollarSign },
   ];
 
   return (
@@ -41,7 +41,6 @@ export default function AdminSidebar({ setActiveSection, activeSection }) {
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
         <div className="w-64 bg-gray-900 text-white h-full flex flex-col shadow-xl">
-          {/* Header */}
           <div className="p-5 border-b border-gray-700">
             <div className="text-xl font-bold mb-1">Admin Panel</div>
             <div className="text-xs text-gray-400">
@@ -49,7 +48,6 @@ export default function AdminSidebar({ setActiveSection, activeSection }) {
             </div>
           </div>
 
-          {/* Menu */}
           <nav className="flex-1 p-4 space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
@@ -70,17 +68,16 @@ export default function AdminSidebar({ setActiveSection, activeSection }) {
               );
             })}
 
-            {/* Categorías dropdown */}
             <div className="mt-2 pt-2 border-t border-gray-700">
               <button
                 onClick={() => setOpenCategorias(!openCategorias)}
                 className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-700 rounded transition"
               >
                 <span className="flex items-center gap-3">
-                  <FaBoxes />
-                  Gestión Categorías
+                  <Package />
+                  Gestion Categorias
                 </span>
-                {openCategorias ? <FaChevronDown /> : <FaChevronRight />}
+                {openCategorias ? <ChevronDown /> : <ChevronRight />}
               </button>
               {openCategorias && (
                 <div className="ml-6 mt-1 space-y-1">
@@ -110,17 +107,16 @@ export default function AdminSidebar({ setActiveSection, activeSection }) {
               )}
             </div>
 
-            {/* Productos dropdown */}
             <div className="pt-2 border-t border-gray-700">
               <button
                 onClick={() => setOpenProducts(!openProducts)}
                 className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-700 rounded transition"
               >
                 <span className="flex items-center gap-3">
-                  <FaBoxOpen />
-                  Gestión Productos
+                  <PackageOpen />
+                  Gestion Productos
                 </span>
-                {openProducts ? <FaChevronDown /> : <FaChevronRight />}
+                {openProducts ? <ChevronDown /> : <ChevronRight />}
               </button>
               {openProducts && (
                 <div className="ml-6 mt-1 space-y-1">
@@ -151,14 +147,13 @@ export default function AdminSidebar({ setActiveSection, activeSection }) {
             </div>
           </nav>
 
-          {/* Cerrar sesión */}
           <div className="p-4 border-t border-gray-700">
             <button
               className="w-full flex items-center gap-3 px-4 py-2 bg-red-600 hover:bg-red-700 rounded transition"
               onClick={handleLogout}
             >
-              <FaSignOutAlt />
-              Cerrar sesión
+              <LogOut />
+              Cerrar sesion
             </button>
           </div>
         </div>

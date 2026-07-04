@@ -5,6 +5,7 @@ function AdminCard({ name, role, avatar }) {
     <div className="max-w-xs bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 p-4 flex items-center space-x-4">
       {/* Foto de usuario */}
       <img 
+        loading="lazy"
         className="w-16 h-16 rounded-full object-cover border-2 border-blue-500" 
         src={avatar} 
         alt={`${name} avatar`} 

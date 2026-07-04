@@ -1056,3 +1056,18 @@ class PublicReviewsView(APIView):
                 'created_at': r.created_at.isoformat(),
             })
         return Response(data, status=status.HTTP_200_OK)
+
+
+VALID_COUPONS = {
+    'BIENVENIDO10': {'discount_amount': 10, 'label': '10% descuento'},
+    'VERANO2026': {'discount_amount': 15, 'label': '15% descuento'},
+    'SALAS20': {'discount_amount': 20, 'label': '20% descuento'},
+}
+
+
+class CouponValidateView(APIView):
+    def post(self, request):
+        code = (request.data.get('code') or '').strip().upper()
+        if code in VALID_COUPONS:
+            return Response(VALID_COUPONS[code], status=status.HTTP_200_OK)
+        return Response({'error': 'Cupon no valido o expirado'}, status=status.HTTP_404_NOT_FOUND)
