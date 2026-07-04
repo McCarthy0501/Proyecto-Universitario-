@@ -6,6 +6,7 @@ from .models import Product, Variation, ReviewRating, ProductGallery
 class ProductSerializer(serializers.ModelSerializer):
     average_rating = serializers.SerializerMethodField()
     review_count = serializers.SerializerMethodField()
+    category_name = serializers.SerializerMethodField()
     
     class Meta:
         model = Product
@@ -16,6 +17,9 @@ class ProductSerializer(serializers.ModelSerializer):
     
     def get_review_count(self, obj):
         return obj.countReview()
+    
+    def get_category_name(self, obj):
+        return obj.category.category_name if obj.category else None
 
 
 class VariationSerializer(serializers.ModelSerializer):

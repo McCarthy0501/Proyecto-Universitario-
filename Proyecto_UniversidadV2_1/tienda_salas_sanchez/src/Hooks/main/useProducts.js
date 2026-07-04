@@ -1,49 +1,68 @@
-import { useState,useEffect,useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 
+const API_BASE = 'http://localhost:8000';
 
-export const useProducts=()=>{
-     const [product,setProduct]=useState([])
-    useEffect(() => {
-      const peticion = async () => {
-        const url = "http://localhost:8000/api/productos"; //url de la api creada en django
-        try {
-          const peti = await fetch(url); //hacemos la peticion confetch y como parametro la variable url
-          const data = await peti.json();//transformamos la respuesta en json
-          
-          setProduct(data);//cambiamos el estado y como parametro pasamos el json
-        } catch (e) {
-          console.log("error en los datos", e);//capturamos los errores
+export const useProducts = () => {
+  const [data, setData] = useState({ results: [], count: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [sort, setSort] = useState('-created_date');
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const url = `${API_BASE}/api/productos/?page=${page}&sort=${sort}`;
+        const peti = await fetch(url);
+        const json = await peti.json();
+        if (!cancelled) {
+          if (Array.isArray(json)) {
+            setData({ results: json, count: json.length });
+          } else {
+            setData(json);
+          }
         }
-      };
-      peticion();//ejecutamos la funcion
-    }, []);//el[ ] para que se ejecute una sola vez
-    
-    const productosOrdenados=useMemo(()=>{
-
-      const copiaProductos=[...product]//copia de los productos
-
-      //ojo no esta acomodadoooo
-      return copiaProductos.sort((a,b)=>{
-        
-        const producto_A=a.product_name.toUpperCase();
-
-        const producto_B=b.product_name.toUpperCase();
-
-        if (producto_A<producto_B){
-          return -1
-       
+      } catch (e) {
+        if (!cancelled) {
+          console.log("error en los datos", e);
+          setError(e.message);
         }
-         else if (producto_A>producto_B){
-          return 1
-        }
-        return 0
-      })
-        
-    },[product])
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    fetchProducts();
+    return () => { cancelled = true; };
+  }, [page, sort]);
 
-    return{
-        product, // Productos originales
-        productosOrdenados, // Productos ordenados alfabéticamente
-    }
+  const products = data.results || [];
+  const totalCount = data.count || products.length;
+  const totalPages = Math.ceil(totalCount / 12) || 1;
 
-}
+  const productosOrdenados = useMemo(() => {
+    const copiaProductos = [...products];
+    return copiaProductos.sort((a, b) => {
+      const producto_A = a.product_name.toUpperCase();
+      const producto_B = b.product_name.toUpperCase();
+      if (producto_A < producto_B) return -1;
+      else if (producto_A > producto_B) return 1;
+      return 0;
+    });
+  }, [products]);
+
+  return {
+    product: products,
+    productosOrdenados,
+    loading,
+    error,
+    page,
+    totalPages,
+    totalCount,
+    setPage,
+    sort,
+    setSort,
+  };
+};

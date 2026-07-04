@@ -1,19 +1,20 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Search, Filter, X, SlidersHorizontal, DollarSign, Package, Star } from 'lucide-react';
+import { Search, Filter, SlidersHorizontal, DollarSign, Package, Star } from 'lucide-react';
 import ProductCard from '../../components/complementos/productCard';
-import { useProducts } from '../../Hooks/main/useProducts';
+import Pagination from '../../components/complementos/Pagination';
+import Breadcrumb from '../../components/complementos/Breadcrumb';
+import { useProductSearch } from '../../Hooks/main/useProductSearch';
 import { useCategorys } from '../../Hooks/main/useCategorys';
 
 function SearchResults() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const query = searchParams.get('q') || '';
-  
-  const { productosOrdenados } = useProducts();
+
+  const { products, loading, searchProducts, page, totalPages, totalCount, changePage } = useProductSearch();
   const { categoriasOrdenadas } = useCategorys();
-  
-  // Estados para filtros
+
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     category: '',
@@ -21,82 +22,64 @@ function SearchResults() {
     maxPrice: '',
     inStock: false,
     minRating: '',
+    sort: '-created_date',
   });
+  const filtersRef = useRef(filters);
+  filtersRef.current = filters;
 
-  // Función de búsqueda
-  const searchProducts = useMemo(() => {
-    if (!query && !filters.category && !filters.minPrice && !filters.maxPrice && !filters.inStock && !filters.minRating) {
-      return [];
-    }
+  const doSearch = useCallback((currentFilters, pageNum = 1) => {
+    searchProducts({
+      query: query,
+      category: currentFilters.category || undefined,
+      minPrice: currentFilters.minPrice || undefined,
+      maxPrice: currentFilters.maxPrice || undefined,
+      sort: currentFilters.sort,
+      isAvailable: currentFilters.inStock || undefined,
+      minRating: currentFilters.minRating || undefined,
+    }, pageNum);
+  }, [query, searchProducts]);
 
-    let results = productosOrdenados;
-
-    // Búsqueda por texto
-    if (query) {
-      const searchLower = query.toLowerCase();
-      results = results.filter(product => 
-        product.product_name?.toLowerCase().includes(searchLower) ||
-        product.description?.toLowerCase().includes(searchLower) ||
-        product.category?.category_name?.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // Filtro por categoría
-    if (filters.category) {
-      results = results.filter(product => 
-        product.category === parseInt(filters.category) || 
-        product.category?.id === parseInt(filters.category)
-      );
-    }
-
-    // Filtro por precio mínimo
-    if (filters.minPrice) {
-      results = results.filter(product => product.price >= parseFloat(filters.minPrice));
-    }
-
-    // Filtro por precio máximo
-    if (filters.maxPrice) {
-      results = results.filter(product => product.price <= parseFloat(filters.maxPrice));
-    }
-
-    // Filtro por stock disponible
-    if (filters.inStock) {
-      results = results.filter(product => product.stock > 0);
-    }
-
-    // Filtro por rating mínimo (si existe en el producto)
-    if (filters.minRating) {
-      results = results.filter(product => {
-        const rating = product.average_rating || 0;
-        return rating >= parseFloat(filters.minRating);
-      });
-    }
-
-    return results;
-  }, [query, filters, productosOrdenados]);
+  useEffect(() => {
+    doSearch(filtersRef.current, 1);
+  }, [query, doSearch]);
 
   const handleFilterChange = (name, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    const newFilters = { ...filters, [name]: value };
+    setFilters(newFilters);
+    doSearch(newFilters, 1);
   };
 
-  const clearFilters = () => {
-    setFilters({
+  const handleClearFilters = () => {
+    const cleared = {
       category: '',
       minPrice: '',
       maxPrice: '',
       inStock: false,
       minRating: '',
-    });
+      sort: '-created_date',
+    };
+    setFilters(cleared);
+    doSearch(cleared, 1);
   };
 
   const hasActiveFilters = filters.category || filters.minPrice || filters.maxPrice || filters.inStock || filters.minRating;
 
+  const handlePageChange = (newPage) => {
+    changePage(newPage);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <Breadcrumb
+          items={[
+            { label: 'Inicio', to: '/' },
+            { label: 'Búsqueda' },
+          ]}
+          currentLabel={query || 'Todos los productos'}
+        />
+
         {/* Header de búsqueda */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
@@ -105,7 +88,7 @@ function SearchResults() {
                 {query ? `Resultados para: "${query}"` : 'Búsqueda de Productos'}
               </h1>
               <p className="text-gray-600 mt-1">
-                {searchProducts.length} {searchProducts.length === 1 ? 'producto encontrado' : 'productos encontrados'}
+                {totalCount} {totalCount === 1 ? 'producto encontrado' : 'productos encontrados'}
               </p>
             </div>
             <button
@@ -118,7 +101,7 @@ function SearchResults() {
           </div>
 
           {/* Barra de búsqueda */}
-          <form 
+          <form
             onSubmit={(e) => {
               e.preventDefault();
               const formData = new FormData(e.target);
@@ -160,7 +143,7 @@ function SearchResults() {
                   </h2>
                   {hasActiveFilters && (
                     <button
-                      onClick={clearFilters}
+                      onClick={handleClearFilters}
                       className="text-sm text-blue-600 hover:text-blue-800"
                     >
                       Limpiar
@@ -257,12 +240,32 @@ function SearchResults() {
 
           {/* Resultados de búsqueda */}
           <div className={`${showFilters ? 'lg:w-3/4' : 'w-full'}`}>
-            {searchProducts.length > 0 ? (
+            {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {searchProducts.map(product => (
-                  <ProductCard key={product.id} product={product} />
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="bg-white rounded-xl shadow-lg overflow-hidden animate-pulse">
+                    <div className="h-48 bg-gray-200"></div>
+                    <div className="p-6 space-y-3">
+                      <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-5 bg-gray-200 rounded w-1/2"></div>
+                      <div className="h-4 bg-gray-200 rounded w-full"></div>
+                    </div>
+                  </div>
                 ))}
               </div>
+            ) : products.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {products.map(product => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
+              </>
             ) : (
               <div className="bg-white rounded-lg shadow-md p-12 text-center">
                 <Search className="w-24 h-24 text-gray-400 mx-auto mb-4" />
@@ -270,7 +273,7 @@ function SearchResults() {
                   Producto no encontrado
                 </h2>
                 <p className="text-gray-600 mb-6">
-                  {query 
+                  {query
                     ? `No se encontraron productos que coincidan con "${query}"`
                     : 'No se encontraron productos con los filtros seleccionados'
                   }
@@ -278,7 +281,7 @@ function SearchResults() {
                 <div className="space-x-4">
                   <button
                     onClick={() => {
-                      clearFilters();
+                      handleClearFilters();
                       navigate('/search');
                     }}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"

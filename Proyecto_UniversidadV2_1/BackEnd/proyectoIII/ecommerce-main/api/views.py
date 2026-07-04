@@ -32,6 +32,7 @@ class Categorylist(viewsets.ModelViewSet):
     queryset=Category.objects.all()
     serializer_class=CategorySerializer
     permission_classes = [AllowAny]  # Las categorías deben ser públicas
+    pagination_class = None
 
 #endpoint de productos
 class Productlist(viewsets.ModelViewSet):
@@ -64,9 +65,12 @@ class ProductByCategory(APIView):
             )
             # 🧠 Serializamos los productos para convertirlos a formato JSON
         # Pasamos el 'request' en el contexto para que las URLs de imagen sean absolutas
-        serializer = ProductSerializer(productos, many=True, context={'request': request})
+        from rest_framework.pagination import PageNumberPagination
+        paginator = PageNumberPagination()
+        result_page = paginator.paginate_queryset(productos, request)
+        serializer = ProductSerializer(result_page, many=True, context={'request': request})
         #devovlemos la respuesta al front
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return paginator.get_paginated_response(serializer.data)
     """
     many=True → indica que son varios productos (un queryset), no uno solo.
     context={'request': request} → se pasa para que, por ejemplo, los campos de imagen generen URLs completas.
@@ -576,7 +580,7 @@ class ProductSearchView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, format=None):
-        from django.db.models import Q
+        from django.db.models import Q, Avg, F
         
         query = request.query_params.get('q', '')
         category_id = request.query_params.get('category', None)
@@ -584,6 +588,7 @@ class ProductSearchView(APIView):
         max_price = request.query_params.get('max_price', None)
         sort = request.query_params.get('sort', '-created_date')
         is_available = request.query_params.get('is_available', None)
+        min_rating = request.query_params.get('min_rating', None)
 
         products = Product.objects.all()
 
@@ -608,6 +613,10 @@ class ProductSearchView(APIView):
         if is_available is not None:
             products = products.filter(is_available=is_available.lower() == 'true')
 
+        # Filtro por rating mínimo
+        if min_rating:
+            products = products.annotate(avg_rating=Avg('reviewrating__rating')).filter(avg_rating__gte=float(min_rating))
+
         # Ordenamiento
         if sort == 'price_asc':
             products = products.order_by('price')
@@ -615,11 +624,16 @@ class ProductSearchView(APIView):
             products = products.order_by('-price')
         elif sort == 'name':
             products = products.order_by('product_name')
+        elif sort == 'rating':
+            products = products.annotate(avg_rating=Avg('reviewrating__rating')).order_by(F('avg_rating').desc(nulls_last=True))
         else:
             products = products.order_by('-created_date')
 
-        serializer = ProductSerializer(products, many=True, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        from rest_framework.pagination import PageNumberPagination
+        paginator = PageNumberPagination()
+        result_page = paginator.paginate_queryset(products, request)
+        serializer = ProductSerializer(result_page, many=True, context={'request': request})
+        return paginator.get_paginated_response(serializer.data)
 
 
 # Productos relacionados (misma categoría)
