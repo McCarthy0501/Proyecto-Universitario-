@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from "../../api";
 
 export const useProductDetail = (productId) => {
   const [product, setProduct] = useState(null);
@@ -13,7 +14,7 @@ export const useProductDetail = (productId) => {
       setError(null);
       
       try {
-        const url = `http://localhost:8000/api/productos/${productId}/detalle/`;
+        const url = `${API_BASE_URL}/api/productos/${productId}/detalle/`;
         const response = await fetch(url);
         
         if (!response.ok) {

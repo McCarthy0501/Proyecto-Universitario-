@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Search, Package, MapPin, Calendar, CheckCircle, XCircle, Clock, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import { API_BASE_URL } from "../../api";
 
 export default function TableOrders() {
   const [orders, setOrders] = useState([]);
@@ -16,7 +17,7 @@ export default function TableOrders() {
     setLoading(true);
     try {
       const token = localStorage.getItem("adminToken") || localStorage.getItem("accessToken");
-      const response = await fetch("http://localhost:8000/api/orders/", {
+      const response = await fetch(`${API_BASE_URL}/api/orders/?page_size=500`, {
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
@@ -25,7 +26,7 @@ export default function TableOrders() {
 
       if (response.ok) {
         const data = await response.json();
-        setOrders(data);
+        setOrders(data.results || data);
       }
     } catch (e) {
       console.error("Error al cargar órdenes:", e);
@@ -37,7 +38,7 @@ export default function TableOrders() {
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
       const token = localStorage.getItem("adminToken") || localStorage.getItem("accessToken");
-      const response = await fetch(`http://localhost:8000/api/orders/${orderId}/`, {
+      const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/`, {
         method: 'PATCH',
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',

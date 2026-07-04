@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { LogoForm } from "../../header/logo";
 import { useNavigate } from "react-router-dom";
 import { Upload, X, AlertCircle, CheckCircle, Package, DollarSign } from "lucide-react";
+import { API_BASE_URL } from "../../../api";
 
 function AggProducts() {
    const [categoria, setCategoria] = useState([]);
@@ -26,11 +27,11 @@ function AggProducts() {
 //categorias
      useEffect(() => {
         const peticion = async () => {
-            const url = "http://localhost:8000/api/categorias";
+            const url = `${API_BASE_URL}/api/categorias?page_size=500`;
             try {
                 const consulta = await fetch(url);
                 const data = await consulta.json();
-                setCategoria(data);
+                setCategoria(data.results || data);
             } catch (e) {
               console.log("error en los datos", e);
             }
@@ -135,7 +136,7 @@ function AggProducts() {
       formdata.append("is_available", data.is_available);
 
       const token = localStorage.getItem('adminToken') || localStorage.getItem('accessToken');
-      const url = "http://localhost:8000/api/admin/aggProduct/";
+      const url = `${API_BASE_URL}/api/admin/aggProduct/`;
       
       try {
         const headers = {};

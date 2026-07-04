@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { LogoForm } from '../header/logo';
 import { Mail, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../../api';
 
 function ForgotPasswordForm() {
   const [email, setEmail] = useState('');
@@ -15,7 +16,7 @@ function ForgotPasswordForm() {
     setMessage('');
 
     try {
-      const response = await fetch('http://localhost:8000/api/password-reset/', {
+      const response = await fetch(`${API_BASE_URL}/api/password-reset/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

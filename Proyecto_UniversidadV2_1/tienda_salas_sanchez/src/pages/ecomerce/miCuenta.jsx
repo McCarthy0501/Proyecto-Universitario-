@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import EditProfileForm from '../../components/formularios/editProfileForm'
 import ChangePasswordForm from '../../components/formularios/changePasswordForm'
 import toast from 'react-hot-toast'
+import { API_BASE_URL } from "../../api"
 
 export default function MiCuenta(){
     const { user, logout, refreshUserInfo } = useAuth()
@@ -26,11 +27,11 @@ export default function MiCuenta(){
         
         // Probar diferentes URLs para debug
         const urls = [
-            'http://localhost:8000/api/test/',  // Endpoint de prueba sin autenticación
-            'http://localhost:8000/api/user/me/',
-            'http://localhost:8000/api/current-user/',
-            'http://localhost:8000/users/me/',
-            'http://localhost:8000/api/token/',  // Para verificar si el servidor responde
+            `${API_BASE_URL}/api/test/`,
+            `${API_BASE_URL}/api/user/me/`,
+            `${API_BASE_URL}/api/current-user/`,
+            `${API_BASE_URL}/users/me/`,
+            `${API_BASE_URL}/api/token/`,
         ];
         
         for (const url of urls) {

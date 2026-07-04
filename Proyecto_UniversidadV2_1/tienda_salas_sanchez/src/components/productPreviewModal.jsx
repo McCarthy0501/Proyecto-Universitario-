@@ -3,6 +3,7 @@ import { X, Star, ShoppingCart, Plus, Minus, Heart } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../api';
 
 function ProductPreviewModal({ product, isOpen, onClose }) {
   const { addToCart, isInCart, getProductQuantity, updateQuantity } = useCart();
@@ -23,7 +24,7 @@ function ProductPreviewModal({ product, isOpen, onClose }) {
 
   const fetchReviews = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/products/${product.id}/reviews/`);
+      const response = await fetch(`${API_BASE_URL}/api/products/${product.id}/reviews/`);
       if (response.ok) {
         const data = await response.json();
         setReviews(data);
@@ -61,7 +62,7 @@ function ProductPreviewModal({ product, isOpen, onClose }) {
     setLoading(true);
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:8000/api/products/${product.id}/reviews/`, {
+      const response = await fetch(`${API_BASE_URL}/api/products/${product.id}/reviews/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

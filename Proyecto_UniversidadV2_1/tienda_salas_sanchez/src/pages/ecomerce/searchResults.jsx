@@ -62,7 +62,7 @@ function SearchResults() {
     doSearch(cleared, 1);
   };
 
-  const hasActiveFilters = filters.category || filters.minPrice || filters.maxPrice || filters.inStock || filters.minRating;
+  const hasActiveFilters = filters.category || filters.minPrice || filters.maxPrice || filters.sort !== '-created_date' || filters.inStock || filters.minRating;
 
   const handlePageChange = (newPage) => {
     changePage(newPage);
@@ -80,12 +80,11 @@ function SearchResults() {
           currentLabel={query || 'Todos los productos'}
         />
 
-        {/* Header de búsqueda */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {query ? `Resultados para: "${query}"` : 'Búsqueda de Productos'}
+                {query ? `Resultados para: "${query}"` : 'Busqueda de Productos'}
               </h1>
               <p className="text-gray-600 mt-1">
                 {totalCount} {totalCount === 1 ? 'producto encontrado' : 'productos encontrados'}
@@ -100,7 +99,6 @@ function SearchResults() {
             </button>
           </div>
 
-          {/* Barra de búsqueda */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -122,24 +120,20 @@ function SearchResults() {
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
-            >
+            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
               Buscar
             </button>
           </form>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Panel de filtros */}
           {showFilters && (
             <div className="lg:w-1/4">
               <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold text-gray-900 flex items-center">
                     <Filter className="w-5 h-5 mr-2" />
-                    Filtros Avanzados
+                    Filtros
                   </h2>
                   {hasActiveFilters && (
                     <button
@@ -152,93 +146,57 @@ function SearchResults() {
                 </div>
 
                 <div className="space-y-6">
-                  {/* Filtro por categoría */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Categoría
-                    </label>
-                    <select
-                      value={filters.category}
-                      onChange={(e) => handleFilterChange('category', e.target.value)}
-                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Todas las categorías</option>
-                      {categoriasOrdenadas.map(category => (
-                        <option key={category.id} value={category.id}>
-                          {category.category_name}
-                        </option>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Categoria</label>
+                    <select value={filters.category} onChange={(e) => handleFilterChange('category', e.target.value)}
+                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="">Todas las categorias</option>
+                      {categoriasOrdenadas?.map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.category_name}</option>
                       ))}
                     </select>
                   </div>
 
-                  {/* Filtro por precio */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                      <DollarSign className="w-4 h-4 mr-1" />
-                      Rango de Precio
+                      <DollarSign className="w-4 h-4 mr-1" /> Rango de Precio
                     </label>
                     <div className="space-y-2">
-                      <input
-                        type="number"
-                        placeholder="Precio mínimo"
-                        value={filters.minPrice}
+                      <input type="number" placeholder="Precio minimo" value={filters.minPrice}
                         onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        min="0"
-                        step="0.01"
-                      />
-                      <input
-                        type="number"
-                        placeholder="Precio máximo"
-                        value={filters.maxPrice}
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" min="0" />
+                      <input type="number" placeholder="Precio maximo" value={filters.maxPrice}
                         onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        min="0"
-                        step="0.01"
-                      />
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" min="0" />
                     </div>
                   </div>
 
-                  {/* Filtro por stock */}
                   <div>
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={filters.inStock}
-                        onChange={(e) => handleFilterChange('inStock', e.target.checked)}
-                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                      />
-                      <span className="text-sm font-medium text-gray-700 flex items-center">
-                        <Package className="w-4 h-4 mr-1" />
-                        Solo productos disponibles
-                      </span>
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Ordenar</label>
+                    <select value={filters.sort} onChange={(e) => handleFilterChange('sort', e.target.value)}
+                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="-created_date">Mas recientes</option>
+                      <option value="price_asc">Precio: menor a mayor</option>
+                      <option value="price_desc">Precio: mayor a menor</option>
+                      <option value="name">Nombre A-Z</option>
+                    </select>
                   </div>
 
-                  {/* Filtro por rating */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                      <Star className="w-4 h-4 mr-1" />
-                      Valoración Mínima
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input type="checkbox" checked={filters.inStock}
+                        onChange={(e) => handleFilterChange('inStock', e.target.checked)}
+                        className="w-4 h-4 text-blue-600 rounded" />
+                      <span className="text-sm font-medium text-gray-700 flex items-center">
+                        <Package className="w-4 h-4 mr-1" /> Solo disponibles
+                      </span>
                     </label>
-                    <select
-                      value={filters.minRating}
-                      onChange={(e) => handleFilterChange('minRating', e.target.value)}
-                      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Todas las valoraciones</option>
-                      <option value="4">4 estrellas o más</option>
-                      <option value="3">3 estrellas o más</option>
-                      <option value="2">2 estrellas o más</option>
-                      <option value="1">1 estrella o más</option>
-                    </select>
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Resultados de búsqueda */}
           <div className={`${showFilters ? 'lg:w-3/4' : 'w-full'}`}>
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -269,9 +227,7 @@ function SearchResults() {
             ) : (
               <div className="bg-white rounded-lg shadow-md p-12 text-center">
                 <Search className="w-24 h-24 text-gray-400 mx-auto mb-4" />
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  Producto no encontrado
-                </h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Sin resultados</h2>
                 <p className="text-gray-600 mb-6">
                   {query
                     ? `No se encontraron productos que coincidan con "${query}"`
@@ -288,11 +244,9 @@ function SearchResults() {
                   >
                     Limpiar Búsqueda
                   </button>
-                  <button
-                    onClick={() => navigate('/productos')}
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg transition-colors"
-                  >
-                    Ver Todos los Productos
+                  <button onClick={() => navigate('/productos')}
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg transition-colors">
+                    Ver Catalogo
                   </button>
                 </div>
               </div>

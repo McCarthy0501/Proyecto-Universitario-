@@ -1,17 +1,18 @@
 import { useState,useEffect } from "react";
 import TableProducts from "./TableProducts";
+import { API_BASE_URL } from "../../api";
 
 {/*creamos la funcion */}
 function ProductsAdmin() {
     const [product,setProduct]=useState([])
     useEffect(() => {
       const peticion = async () => {
-        const url = "http://localhost:8000/api/productos"; //url de la api creada en django
+        const url = `${API_BASE_URL}/api/productos?page_size=500`;
         try {
-          const peti = await fetch(url); //hacemos la peticion con fetch y como parametro la variable url
-          const data = await peti.json();//transformamos la respuesta en json
-          
-          setProduct(data);//cambiamos el estado y como parametro pasamos el json
+          const peti = await fetch(url);
+          const data = await peti.json();
+          const items = data.results || data;
+          setProduct(items);
         } catch (e) {
           console.log("error en los datos", e);//capturamos los errores
         }

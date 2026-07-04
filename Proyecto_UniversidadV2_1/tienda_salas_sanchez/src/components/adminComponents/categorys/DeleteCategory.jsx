@@ -1,6 +1,7 @@
 import { useNavigate,useParams } from "react-router-dom";
 import { useEffect,useState } from "react";
 import { LogoForm } from "../../header/logo";
+import { API_BASE_URL } from "../../../api";
 
 export default function DeleteCategory() {
     //obtenemos la id por medio de la url de table categori
@@ -45,7 +46,6 @@ useEffect(()=>{
     const deleteCategorySubmit=async (e) =>{
          e.preventDefault();
          const token = localStorage.getItem("adminToken") || localStorage.getItem("accessToken");
-         
          
          
          try {

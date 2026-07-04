@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { API_BASE_URL } from '../../api';
 
 function ChangePasswordForm() {
   const { user } = useAuth();
@@ -43,7 +44,7 @@ function ChangePasswordForm() {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:8000/api/change-password/', {
+      const response = await fetch(`${API_BASE_URL}/api/change-password/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

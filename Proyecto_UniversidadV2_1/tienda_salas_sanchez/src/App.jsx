@@ -3,6 +3,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { AdminAuthProvider, useAdminAuth } from './contexts/AdminAuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { WishlistProvider } from './contexts/WishlistContext';
+import { ExchangeRateProvider } from './contexts/ExchangeRateContext';
 import { Toaster } from 'react-hot-toast';
 
 import Home from './pages/ecomerce/home';
@@ -54,6 +55,7 @@ function App() {
         <CartProvider>
           <WishlistProvider>
           <AdminAuthProvider>
+            <ExchangeRateProvider>
             <div className="flex flex-col min-h-screen bg-gray-100">
               <Routes>
                 <Route element={<MainLayout />}>
@@ -98,6 +100,7 @@ function App() {
                 </Route>
               </Routes>
             </div>
+            </ExchangeRateProvider>
           </AdminAuthProvider>
           </WishlistProvider>
         </CartProvider>

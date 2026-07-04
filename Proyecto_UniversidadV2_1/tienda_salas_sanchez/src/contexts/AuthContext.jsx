@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { apiFetch } from '../api';
 
 const AuthContext = createContext();
 
@@ -9,10 +10,10 @@ const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      setToken(token);
-      fetchUserInfo(token);
+    const storedToken = localStorage.getItem('accessToken');
+    if (storedToken) {
+      setToken(storedToken);
+      fetchUserInfo(storedToken);
     } else {
       setIsAuthenticated(false);
       setUser(null);
@@ -20,62 +21,25 @@ const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const fetchUserInfo = async (token) => {
+  const fetchUserInfo = async (storedToken) => {
     try {
-      console.log('🔍 Obteniendo información del usuario...');
-      const response = await fetch('http://localhost:8000/api/user/me/', {
+      const response = await apiFetch('/api/user/me/', {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${storedToken}`,
         },
       });
-      
-      console.log('📡 Respuesta del servidor:', response.status, response.statusText);
-      
+
       if (response.ok) {
         const userData = await response.json();
-        console.log('👤 Datos del usuario recibidos:', userData);
-        console.log('👤 Nombre completo:', userData.first_name, userData.last_name);
         setIsAuthenticated(true);
         setUser(userData);
       } else if (response.status === 401) {
-        // Token inválido o expirado
-        console.warn('⚠️ Token inválido o expirado, limpiando sesión');
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('userEmail');
-        setIsAuthenticated(false);
-        setUser(null);
+        clearAuthData();
       } else {
-        console.warn('⚠️ No se pudo obtener datos completos del usuario, usando datos básicos');
-        console.warn('⚠️ Status:', response.status, response.statusText);
-        // En lugar de limpiar todo, usar datos básicos del token
-        const email = localStorage.getItem('userEmail') || 'usuario@email.com';
-        const basicUserData = {
-          id: 1,
-          first_name: 'Reymon',
-          last_name: 'Casique',
-          email: email,
-          username: email.split('@')[0]
-        };
-        console.log('👤 Usando datos básicos:', basicUserData);
-        setIsAuthenticated(true);
-        setUser(basicUserData);
+        clearAuthData();
       }
     } catch (error) {
-      console.error('💥 Error al obtener información del usuario:', error);
-      console.warn('⚠️ Usando datos básicos como fallback');
-      // En caso de error, usar datos básicos en lugar de limpiar todo
-      const email = localStorage.getItem('userEmail') || 'usuario@email.com';
-      const basicUserData = {
-        id: 1,
-        first_name: 'Reymon',
-        last_name: 'Casique',
-        email: email,
-        username: email.split('@')[0]
-      };
-      setIsAuthenticated(true);
-      setUser(basicUserData);
+      clearAuthData();
     } finally {
       setLoading(false);
     }
@@ -88,26 +52,22 @@ const AuthProvider = ({ children }) => {
   };
 
   const refreshUserInfo = async () => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      setToken(token);
-      await fetchUserInfo(token);
+    const storedToken = localStorage.getItem('accessToken');
+    if (storedToken) {
+      setToken(storedToken);
+      await fetchUserInfo(storedToken);
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('userEmail');
-    setToken(null);
-    setIsAuthenticated(false);
-    setUser(null);
+    clearAuthData();
   };
 
   const clearAuthData = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('userEmail');
+    setToken(null);
     setIsAuthenticated(false);
     setUser(null);
   };
@@ -129,7 +89,6 @@ const AuthProvider = ({ children }) => {
   );
 };
 
-// Hook para usar el contexto
 const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -138,5 +97,4 @@ const useAuth = () => {
   return context;
 };
 
-// Exportaciones al final del archivo
 export { AuthProvider, useAuth };

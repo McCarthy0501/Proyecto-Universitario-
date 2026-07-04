@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../api";
 
 export default function TableCategorys() {
  
@@ -19,12 +20,12 @@ export default function TableCategorys() {
      //llamada a la api
     useEffect(() => {
       const peticion = async () => {
-        const url = "http://localhost:8000/api/categorias"; //url de la api creada en django
+        const url = `${API_BASE_URL}/api/categorias?page_size=500`;
         try {
-          const peti = await fetch(url); //hacemos la peticion confetch y como parametro la variable url
-          const data = await peti.json(); //transformamos la respuesta en json
-
-          setCategory(data); //cambiamos el estado y como parametro pasamos el json
+          const peti = await fetch(url);
+          const data = await peti.json();
+          const items = data.results || data;
+          setCategory(items);
         } catch (e) {
           console.log("error en los datos", e); //capturamos los errores
         }

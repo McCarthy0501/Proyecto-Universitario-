@@ -1,6 +1,7 @@
 import { useNavigate,useParams } from "react-router-dom";
 import { useEffect,useState } from "react";
 import { LogoForm } from "../../header/logo";
+import { API_BASE_URL } from "../../../api";
 export default function EditCategory(){
     const { id } = useParams();
     const navigate=useNavigate();
@@ -72,7 +73,7 @@ export default function EditCategory(){
         fromdata.append("slug", newName.slug);
         if (newName.cat_image) fromdata.append("cat_image", newName.cat_image);
         try {
-            const res = await fetch(`http://localhost:8000/api/edit_categorias/${id}/`, {
+            const res = await fetch(`${API_BASE_URL}/api/edit_categorias/${id}/`, {
             method: "PUT",
             headers: {
                 'Authorization': token ? `Bearer ${token}` : '',

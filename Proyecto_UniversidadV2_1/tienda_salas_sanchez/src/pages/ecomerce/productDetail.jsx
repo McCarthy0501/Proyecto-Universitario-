@@ -209,7 +209,10 @@ function ProductDetailPage() {
             </span>
           </div>
 
-          <p className="text-3xl font-bold text-blue-600 mb-4">${product.price}</p>
+          <span className="text-2xl font-bold text-blue-600 mb-4">${product.price}</span>
+          {product.original_price && product.original_price > product.price && (
+            <span className="text-lg text-gray-400 line-through ml-2">${product.original_price}</span>
+          )}
 
           <div className="flex items-center gap-2 mb-4">
             {product.is_available ? (
