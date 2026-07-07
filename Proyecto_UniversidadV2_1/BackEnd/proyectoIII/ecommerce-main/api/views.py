@@ -906,28 +906,92 @@ class UpdateExchangeRateView(APIView):
             return Response({"error": "No autorizado"}, status=status.HTTP_403_FORBIDDEN)
 
         import requests as http_requests
-        apis = [
-            'https://ve.dolar-api.com/api/dolar/oficial',
-            'https://api.exchangemonitor.net/v1/rates?format=json',
-        ]
+        import logging
+        logger = logging.getLogger(__name__)
+
         rate = None
-        for api_url in apis:
+        source_name = None
+        errors = []
+
+        apis = [
+            {
+                'url': 'https://ve.dolar-api.com/api/dolar/oficial',
+                'name': 'DolarApi Venezuela',
+                'parser': lambda data: float(data['price']) if 'price' in data and data.get('price') else None,
+            },
+            {
+                'url': 'https://api.exchangemonitor.net/v1/rates?format=json',
+                'name': 'Exchange Monitor',
+                'parser': lambda data: float(data.get('dolar', {}).get('bcv')) if isinstance(data.get('dolar'), dict) else None,
+            },
+            {
+                'url': 'https://exchangemonitor.net/api/v1/rates?format=json',
+                'name': 'Exchange Monitor (alt)',
+                'parser': lambda data: float(data.get('dolar', {}).get('bcv')) if isinstance(data.get('dolar'), dict) else None,
+            },
+            {
+                'url': 'https://pydolarve.org/api/v1/BCV',
+                'name': 'PyDolarVE',
+                'parser': lambda data: float(data.get('rate')) if 'rate' in data else None,
+            },
+        ]
+
+        for api in apis:
             try:
-                resp = http_requests.get(api_url, timeout=10)
+                resp = http_requests.get(api['url'], timeout=8, headers={'User-Agent': 'DjangoApp/1.0'})
                 if resp.status_code == 200:
                     data = resp.json()
-                    if 'price' in data:
-                        rate = float(data['price'])
+                    parsed = api['parser'](data)
+                    if parsed and parsed > 0:
+                        rate = parsed
+                        source_name = api['name']
                         break
-                    if 'dolar' in data and 'bcv' in data:
-                        rate = float(data['bcv'])
-                        break
-            except Exception:
+                    errors.append(f"{api['name']}: respuesta sin tasa valida ({resp.status_code})")
+                else:
+                    errors.append(f"{api['name']}: HTTP {resp.status_code}")
+            except http_requests.exceptions.Timeout:
+                errors.append(f"{api['name']}: timeout")
+            except Exception as e:
+                errors.append(f"{api['name']}: {str(e)[:80]}")
                 continue
 
         if rate is None:
+            fallback_apis = [
+                {
+                    'url': 'https://open.er-api.com/v6/latest/USD',
+                    'name': 'Open Exchange Rates',
+                    'parser': lambda data: float(data['rates']['VES']) if 'rates' in data and 'VES' in data['rates'] else None,
+                },
+                {
+                    'url': 'https://api.exchangerate-api.com/v4/latest/USD',
+                    'name': 'ExchangeRate-API',
+                    'parser': lambda data: float(data['rates']['VES']) if 'rates' in data and 'VES' in data['rates'] else None,
+                },
+            ]
+            for api in fallback_apis:
+                try:
+                    resp = http_requests.get(api['url'], timeout=8)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        parsed = api['parser'](data)
+                        if parsed and parsed > 0:
+                            rate = parsed
+                            source_name = f"{api['name']} (generico)"
+                            break
+                        errors.append(f"{api['name']}: sin VES en respuesta")
+                    else:
+                        errors.append(f"{api['name']}: HTTP {resp.status_code}")
+                except Exception as e:
+                    errors.append(f"{api['name']}: {str(e)[:80]}")
+                    continue
+
+        if rate is None:
+            logger.warning(f"BCV auto-update failed. Errors: {'; '.join(errors)}")
             return Response(
-                {"error": "No se pudo obtener la tasa de cambio. Usa el modo manual."},
+                {
+                    "error": "No se pudo obtener la tasa de cambio de ninguna fuente.",
+                    "detail": "; ".join(errors[-3:]),
+                },
                 status=status.HTTP_502_BAD_GATEWAY
             )
 
@@ -937,9 +1001,12 @@ class UpdateExchangeRateView(APIView):
         exchange.source = 'auto'
         exchange.save()
 
+        logger.info(f"BCV rate updated to {exchange.rate} Bs/USD via {source_name}")
+
         return Response({
             'rate': float(exchange.rate),
             'source': exchange.source,
+            'source_name': source_name,
             'updated_at': exchange.updated_at.isoformat()
         }, status=status.HTTP_200_OK)
 

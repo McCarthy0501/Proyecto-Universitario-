@@ -4,7 +4,7 @@ import { DollarSign, RotateCw, Save, TrendingUp } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function ExchangeRatePanel() {
-  const { rate, source, loading, setManualRate, updateAutoRate, fetchRate } = useExchangeRate();
+  const { rate, source, loading, setManualRate, updateAutoRate } = useExchangeRate();
   const [manualRate, setManualRateValue] = useState('');
   const [saving, setSaving] = useState(false);
   const [updating, setUpdating] = useState(false);
@@ -15,18 +15,31 @@ export default function ExchangeRatePanel() {
 
   const handleSaveManual = async (e) => {
     e.preventDefault();
+    if (!manualRate || parseFloat(manualRate) <= 0) {
+      toast.error('Ingresa una tasa valida mayor a 0');
+      return;
+    }
     setSaving(true);
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('accessToken');
+      if (!token) {
+        toast.error('Sesion expirada. Vuelve a iniciar sesion como administrador.');
+        setSaving(false);
+        return;
+      }
       const response = await setManualRate(parseFloat(manualRate), token);
       if (response.ok) {
-        toast.success(`Tasa manual actualizada: Bs. ${manualRate}`);
+        toast.success(`Tasa manual guardada: Bs. ${parseFloat(manualRate).toFixed(2)}`);
       } else {
-        const data = await response.json();
-        toast.error(data.error || 'Error al guardar tasa');
+        const data = await response.json().catch(() => ({}));
+        if (response.status === 401 || response.status === 403) {
+          toast.error('No autorizado. Verifica que hayas iniciado sesion como administrador.');
+        } else {
+          toast.error(data.error || 'Error al guardar tasa');
+        }
       }
-    } catch (err) {
-      toast.error('Error de conexión');
+    } catch {
+      toast.error('Error de conexion con el servidor. Verifica que el backend este corriendo.');
     } finally {
       setSaving(false);
     }
@@ -36,15 +49,26 @@ export default function ExchangeRatePanel() {
     setUpdating(true);
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('accessToken');
+      if (!token) {
+        toast.error('Sesion expirada. Vuelve a iniciar sesion como administrador.');
+        setUpdating(false);
+        return;
+      }
       const response = await updateAutoRate(token);
       if (response.ok) {
-        toast.success('Tasa actualizada automáticamente');
-      } else {
         const data = await response.json();
-        toast.error(data.error || 'Error al consultar API externa');
+        toast.success(`Tasa actualizada: Bs. ${data.rate} (${data.source_name || 'auto'})`);
+      } else {
+        const data = await response.json().catch(() => ({}));
+        if (response.status === 401 || response.status === 403) {
+          toast.error('No autorizado. Verifica que hayas iniciado sesion como administrador.');
+        } else {
+          const detail = data.detail ? ` - ${data.detail}` : '';
+          toast.error(`${data.error || 'Error al consultar APIs externas'}${detail}`);
+        }
       }
-    } catch (err) {
-      toast.error('Error de conexión');
+    } catch {
+      toast.error('Error de conexion con el servidor. Verifica que el backend este corriendo.');
     } finally {
       setUpdating(false);
     }
@@ -88,8 +112,11 @@ export default function ExchangeRatePanel() {
             ) : (
               <TrendingUp className="w-5 h-5" />
             )}
-            {updating ? 'Consultando API...' : 'Actualizar Tasa Automáticamente (API BCV)'}
+            {updating ? 'Consultando APIs...' : 'Actualizar Tasa Automaticamente'}
           </button>
+          <p className="text-xs text-gray-400 mt-2 text-center">
+            Consulta APIs venezolanas y genericas para obtener la tasa mas reciente.
+          </p>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">
@@ -97,7 +124,7 @@ export default function ExchangeRatePanel() {
           <form onSubmit={handleSaveManual} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tasa en Bolívares por Dólar
+                Tasa en Bolivares por Dolar
               </label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-semibold">Bs.</span>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Package, DollarSign, TrendingUp, TrendingDown, Users, ShoppingCart, AlertTriangle, BarChart3 } from "lucide-react";
+import { Package, DollarSign, TrendingUp, TrendingDown, Users, ShoppingCart, AlertTriangle, BarChart3, Clock, CheckCircle, XCircle, RefreshCw, Ban } from "lucide-react";
 import { API_BASE_URL } from "../../api";
 
 function Estadistica() {
@@ -14,9 +14,12 @@ function Estadistica() {
         averagePrice: 0,
         activeProducts: 0,
         inactiveProducts: 0,
+        orderStats: { New: 0, Accepted: 0, Completed: 0, Cancelled: 0 },
+        totalRevenue: 0,
     });
     const [loading, setLoading] = useState(true);
     const [chartData, setChartData] = useState([]);
+    const [fetchErrors, setFetchErrors] = useState([]);
 
     useEffect(() => {
         fetchStats();
@@ -24,87 +27,131 @@ function Estadistica() {
 
     const fetchStats = async () => {
         setLoading(true);
+        setFetchErrors([]);
+        const errors = [];
+
+        const getToken = () => localStorage.getItem("adminToken") || localStorage.getItem("accessToken");
+        const authHeaders = () => {
+            const token = getToken();
+            return token ? { 'Authorization': `Bearer ${token}` } : {};
+        };
+
+        let products = [];
+        let categories = [];
+        let usersData = [];
+        let ordersData = [];
+
         try {
-            // Obtener productos
-            const productsRes = await fetch(`${API_BASE_URL}/api/productos?page_size=500`);
-            const productsData = await productsRes.json();
-            const products = productsData.results || productsData;
-            
-            const categoriesRes = await fetch(`${API_BASE_URL}/api/categorias?page_size=500`);
-            const categoriesData = await categoriesRes.json();
-            const categories = categories.results || categoriesData;
-
-            // Obtener usuarios (si el endpoint existe)
-            let usersData = [];
-            try {
-                const token = localStorage.getItem("adminToken") || localStorage.getItem("accessToken");
-                const headers = {};
-                if (token) {
-                    headers['Authorization'] = `Bearer ${token}`;
-                }
-                const usersRes = await fetch(`${API_BASE_URL}/api/users/?page_size=500`, { headers });
-                if (usersRes.ok) {
-                    const data = await usersRes.json();
-                    usersData = data.results || data;
-                }
-            } catch (e) {
-                console.log("Error al cargar usuarios:", e);
+            const res = await fetch(`${API_BASE_URL}/api/productos?page_size=500`);
+            if (res.ok) {
+                const data = await res.json();
+                products = data.results || data;
+            } else {
+                errors.push("Productos: error del servidor");
             }
+        } catch {
+            errors.push("Productos: error de conexion");
+        }
 
-            // Obtener órdenes (si el endpoint existe)
-            let ordersData = [];
-            try {
-                const token = localStorage.getItem("adminToken") || localStorage.getItem("accessToken");
-                const headers = {};
-                if (token) {
-                    headers['Authorization'] = `Bearer ${token}`;
-                }
-                const ordersRes = await fetch(`${API_BASE_URL}/api/orders/?page_size=500`, { headers });
-                if (ordersRes.ok) {
-                    const data = await ordersRes.json();
-                    ordersData = data.results || data;
-                }
-            } catch (e) {
-                console.log("Error al cargar órdenes:", e);
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/categorias?page_size=500`);
+            if (res.ok) {
+                const data = await res.json();
+                categories = data.results || data;
+            } else {
+                errors.push("Categorias: error del servidor");
             }
+        } catch {
+            errors.push("Categorias: error de conexion");
+        }
 
-            // Calcular estadísticas
-            const totalProducts = products.length || 0;
-            const lowStockProducts = products.filter(p => p.stock <= 5 && p.stock > 0).length || 0;
-            const outOfStockProducts = products.filter(p => p.stock === 0).length || 0;
-            const activeProducts = products.filter(p => p.is_available).length || 0;
-            const inactiveProducts = products.filter(p => !p.is_available).length || 0;
-            const totalInventoryValue = products.reduce((sum, p) => sum + (parseFloat(p.price || 0) * parseInt(p.stock || 0)), 0);
-            const averagePrice = totalProducts > 0 
-                ? products.reduce((sum, p) => sum + parseFloat(p.price || 0), 0) / totalProducts 
-                : 0;
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/users/?page_size=500`, { headers: authHeaders() });
+            if (res.ok) {
+                const data = await res.json();
+                usersData = data.results || data;
+            } else if (res.status === 401) {
+                errors.push("Usuarios: sesion expirada");
+            } else {
+                errors.push(`Usuarios: error ${res.status}`);
+            }
+        } catch {
+            errors.push("Usuarios: error de conexion");
+        }
 
-            // Agrupar productos por categoría para el gráfico
-            const categoryCount = {};
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/orders/`, { headers: authHeaders() });
+            if (res.ok) {
+                const data = await res.json();
+                ordersData = Array.isArray(data) ? data : (data.results || data);
+            } else if (res.status === 401) {
+                errors.push("Ordenes: sesion expirada");
+            } else if (res.status === 403) {
+                errors.push("Ordenes: acceso denegado (requiere permisos de administrador)");
+            } else {
+                errors.push(`Ordenes: error ${res.status}`);
+            }
+        } catch {
+            errors.push("Ordenes: error de conexion");
+        }
+
+        setFetchErrors(errors);
+
+        const totalProducts = Array.isArray(products) ? products.length : 0;
+        const lowStockProducts = Array.isArray(products) ? products.filter(p => p.stock <= 5 && p.stock > 0).length : 0;
+        const outOfStockProducts = Array.isArray(products) ? products.filter(p => p.stock === 0).length : 0;
+        const activeProducts = Array.isArray(products) ? products.filter(p => p.is_available).length : 0;
+        const inactiveProducts = Array.isArray(products) ? products.filter(p => !p.is_available).length : 0;
+        const totalInventoryValue = Array.isArray(products)
+            ? products.reduce((sum, p) => sum + (parseFloat(p.price || 0) * parseInt(p.stock || 0)), 0) : 0;
+        const averagePrice = totalProducts > 0
+            ? products.reduce((sum, p) => sum + parseFloat(p.price || 0), 0) / totalProducts : 0;
+
+        const orderStats = { New: 0, Accepted: 0, Completed: 0, Cancelled: 0 };
+        let totalRevenue = 0;
+        if (Array.isArray(ordersData)) {
+            ordersData.forEach(o => {
+                if (Object.prototype.hasOwnProperty.call(orderStats, o.status)) {
+                    orderStats[o.status] += 1;
+                }
+                if (o.status === 'Completed' || o.status === 'Accepted' || o.status === 'New') {
+                    totalRevenue += parseFloat(o.order_total || 0);
+                }
+            });
+        }
+
+        const categoryCount = {};
+        if (Array.isArray(products)) {
             products.forEach(p => {
-                const catName = p.category?.category_name || 'Sin categoría';
+                const catName = p.category?.category_name || (typeof p.category === 'string' ? p.category : 'Sin categoria');
                 categoryCount[catName] = (categoryCount[catName] || 0) + 1;
             });
-            const chart = Object.entries(categoryCount).map(([name, count]) => ({ name, count }));
-
-            setStats({
-                totalProducts,
-                totalCategories: categories.length || 0,
-                totalUsers: Array.isArray(usersData) ? usersData.length : 0,
-                totalOrders: Array.isArray(ordersData) ? ordersData.length : 0,
-                lowStockProducts,
-                outOfStockProducts,
-                totalInventoryValue,
-                averagePrice,
-                activeProducts,
-                inactiveProducts,
-            });
-            setChartData(chart);
-        } catch (error) {
-            console.error("Error al cargar estadísticas:", error);
-        } finally {
-            setLoading(false);
         }
+        const chart = Object.entries(categoryCount).map(([name, count]) => ({ name, count }));
+
+        setStats({
+            totalProducts,
+            totalCategories: Array.isArray(categories) ? categories.length : 0,
+            totalUsers: Array.isArray(usersData) ? usersData.length : 0,
+            totalOrders: Array.isArray(ordersData) ? ordersData.length : 0,
+            lowStockProducts,
+            outOfStockProducts,
+            totalInventoryValue,
+            averagePrice,
+            activeProducts,
+            inactiveProducts,
+            orderStats,
+            totalRevenue,
+        });
+        setChartData(chart);
+        setLoading(false);
+    };
+
+    const statusLabels = {
+        New: { label: 'Nuevas', icon: Clock },
+        Accepted: { label: 'Aceptadas', icon: CheckCircle },
+        Completed: { label: 'Completadas', icon: CheckCircle },
+        Cancelled: { label: 'Canceladas', icon: XCircle },
     };
 
     if (loading) {
@@ -118,19 +165,34 @@ function Estadistica() {
     return (
         <div className="space-y-6 p-6">
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-3xl font-bold text-gray-900">Dashboard de Estadísticas</h2>
+                <h2 className="text-3xl font-bold text-gray-900">Dashboard de Estadisticas</h2>
                 <button
                     onClick={fetchStats}
                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center"
                 >
-                    <BarChart3 className="w-4 h-4 mr-2" />
+                    <RefreshCw className="w-4 h-4 mr-2" />
                     Actualizar
                 </button>
             </div>
 
-            {/* Estadísticas principales */}
+            {fetchErrors.length > 0 && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                        <AlertTriangle className="w-5 h-5 text-amber-600" />
+                        <h3 className="font-semibold text-amber-800">Algunos datos no pudieron cargarse</h3>
+                    </div>
+                    <ul className="space-y-1">
+                        {fetchErrors.map((err, i) => (
+                            <li key={i} className="text-sm text-amber-700 flex items-center gap-2">
+                                <Ban className="w-3 h-3 flex-shrink-0" />
+                                {err}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Total Productos */}
                 <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
                     <div className="flex items-center justify-between">
                         <div>
@@ -144,18 +206,16 @@ function Estadistica() {
                     </div>
                 </div>
 
-                {/* Categorías */}
                 <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-gray-600 text-sm font-medium">Categorías</p>
+                            <p className="text-gray-600 text-sm font-medium">Categorias</p>
                             <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalCategories}</p>
                         </div>
                         <BarChart3 className="w-12 h-12 text-green-500" />
                     </div>
                 </div>
 
-                {/* Usuarios */}
                 <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
                     <div className="flex items-center justify-between">
                         <div>
@@ -166,11 +226,10 @@ function Estadistica() {
                     </div>
                 </div>
 
-                {/* Órdenes */}
                 <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-gray-600 text-sm font-medium">Órdenes</p>
+                            <p className="text-gray-600 text-sm font-medium">Ordenes</p>
                             <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalOrders}</p>
                         </div>
                         <ShoppingCart className="w-12 h-12 text-yellow-500" />
@@ -178,9 +237,38 @@ function Estadistica() {
                 </div>
             </div>
 
-            {/* Estadísticas de inventario */}
+            {stats.totalOrders > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {Object.entries(statusLabels).map(([status, { label, icon }]) => {
+                        const Icon = icon;
+                        return (
+                            <div key={status} className="bg-white rounded-lg shadow-md p-4 border-l-4 border-gray-300">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs text-gray-500 uppercase font-medium">{label}</p>
+                                        <p className="text-2xl font-bold text-gray-900 mt-1">{stats.orderStats[status]}</p>
+                                    </div>
+                                    <Icon className="w-8 h-8 text-gray-400" />
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+
+            {stats.totalRevenue > 0 && (
+                <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-gray-600 text-sm font-medium">Ingresos Totales (ordenes activas)</p>
+                            <p className="text-3xl font-bold text-green-600 mt-2">${stats.totalRevenue.toFixed(2)}</p>
+                        </div>
+                        <TrendingUp className="w-10 h-10 text-green-500" />
+                    </div>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Valor del inventario */}
                 <div className="bg-white rounded-lg shadow-md p-6">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-gray-900">Valor del Inventario</h3>
@@ -190,17 +278,15 @@ function Estadistica() {
                     <p className="text-sm text-gray-500 mt-1">Precio promedio: ${stats.averagePrice.toFixed(2)}</p>
                 </div>
 
-                {/* Stock bajo */}
                 <div className="bg-white rounded-lg shadow-md p-6">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-gray-900">Stock Bajo</h3>
                         <AlertTriangle className="w-6 h-6 text-orange-600" />
                     </div>
                     <p className="text-3xl font-bold text-orange-600">{stats.lowStockProducts}</p>
-                    <p className="text-sm text-gray-500 mt-1">Productos con stock ≤ 5 unidades</p>
+                    <p className="text-sm text-gray-500 mt-1">Productos con stock &le; 5 unidades</p>
                 </div>
 
-                {/* Sin stock */}
                 <div className="bg-white rounded-lg shadow-md p-6">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-gray-900">Sin Stock</h3>
@@ -211,14 +297,13 @@ function Estadistica() {
                 </div>
             </div>
 
-            {/* Gráfico de productos por categoría */}
             {chartData.length > 0 && (
                 <div className="bg-white rounded-lg shadow-md p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Productos por Categoría</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Productos por Categoria</h3>
                     <div className="space-y-3">
                         {chartData.map((item, index) => {
                             const maxCount = Math.max(...chartData.map(c => c.count));
-                            const percentage = (item.count / maxCount) * 100;
+                            const percentage = maxCount > 0 ? (item.count / maxCount) * 100 : 0;
                             return (
                                 <div key={index} className="space-y-1">
                                     <div className="flex items-center justify-between text-sm">
