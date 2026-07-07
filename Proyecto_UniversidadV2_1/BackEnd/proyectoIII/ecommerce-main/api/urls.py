@@ -42,6 +42,7 @@ urlpatterns = [
     path('config/exchange-rate/update/', UpdateExchangeRateView.as_view(), name='update_exchange_rate'),
     path('reviews/ultimas/', PublicReviewsView.as_view(), name='public_reviews'),
     path('coupons/validate/', CouponValidateView.as_view(), name='validate_coupon'),
+    path('sliders/', SliderListView.as_view(), name='slider_list'),
 ]
 
 urlpatterns += [

@@ -104,3 +104,23 @@ class ExchangeRate(models.Model):
 
     def __str__(self):
         return f"Bs. {self.rate} | {self.source}"
+
+
+class Slider(models.Model):
+    title = models.CharField(max_length=200)
+    subtitle = models.CharField(max_length=300, blank=True)
+    image = models.ImageField(upload_to='sliders/')
+    link_url = models.CharField(max_length=500, blank=True, help_text="URL a la que redirige el boton CTA")
+    link_text = models.CharField(max_length=100, blank=True, default='Ver mas', help_text="Texto del boton")
+    order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Slider'
+        verbose_name_plural = 'Sliders'
+        ordering = ['order', '-created_at']
+
+    def __str__(self):
+        return self.title

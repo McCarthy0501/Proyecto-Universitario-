@@ -20,7 +20,7 @@ from accounts.serializers import AdminsSerializer
 from accounts.User_serializers import UserSerializer
 from category.serializers import CategorySerializer
 from store.models import Product, Variation, ReviewRating, ProductGallery
-from store.serializers import ProductSerializer, VariationSerializer, ReviewRatingSerializer, ProductGallerySerializer, ProductDetailSerializer
+from store.serializers import ProductSerializer, VariationSerializer, ReviewRatingSerializer, ProductGallerySerializer, ProductDetailSerializer, SliderSerializer
 from category.models import Category
 from orders.models import Order
 from orders.serializers import OrderSerializer
@@ -1138,3 +1138,13 @@ class CouponValidateView(APIView):
         if code in VALID_COUPONS:
             return Response(VALID_COUPONS[code], status=status.HTTP_200_OK)
         return Response({'error': 'Cupon no valido o expirado'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class SliderListView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        from store.models import Slider
+        sliders = Slider.objects.filter(is_active=True).order_by('order', '-created_at')
+        serializer = SliderSerializer(sliders, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
