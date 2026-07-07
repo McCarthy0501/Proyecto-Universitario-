@@ -165,81 +165,56 @@ Eres un desarrollador web full-stack experto con 15 años de experiencia en:
 
 ---
 
-## Registro de cambios — 2026-07-04 (Sesión 1) — COMPLETADO
+## Registro de cambios — 2026-07-06 (Sesión 3) — COMPLETADO
 
-### Alta prioridad — COMPLETADO
+### Bug Fix: Tasa BCV — APIs externas caídas
 
 #### Backend
 | Archivo | Cambio |
 |---------|--------|
-| `store/models.py` | +`is_new` (BooleanField, default=False), +`original_price` (IntegerField, null=True) |
-| `store/serializers.py` | +`category_name` al ProductSerializer para exponer nombre de categoría en listados |
-| `ecommerce/settings.py` | +`DEFAULT_PAGINATION_CLASS` (PageNumberPagination), +`PAGE_SIZE=12` |
-| `api/views.py` | `Categorylist`: pagination_class=None. `ProductByCategory` y `ProductSearchView`: paginación manual. `ProductSearchView`: sort `rating` (Avg anotado), filtro `min_rating` |
-| `store/migrations/0003_...` | Migración aplicada. +is_new, +original_price. Elimina tabla ExchangeRate huérfana |
+| `api/views.py:901` | `UpdateExchangeRateView` reescrito: estrategia multi-fallback con 6 APIs (4 venezolanas directas + 2 genéricas). Parsers configurables por endpoint, timeout 8s, logging, `source_name` y `detail` en respuesta. APIs: DolarApi Venezuela, Exchange Monitor (2 URLs), PyDolarVE, Open Exchange Rates, ExchangeRate-API |
 
-#### Frontend — Componentes nuevos
-| Componente | Ruta | Función |
-|-----------|------|---------|
-| `Badge.jsx` | `src/components/complementos/` | Insignias: "Nuevo" (verde), "-X%" (rojo), "Agotado" (gris). Posición absoluta sobre imagen |
-| `Breadcrumb.jsx` | `src/components/complementos/` | Navegación jerárquica con auto-detección de ruta. Soporta modo manual (items prop) y automático |
-| `Pagination.jsx` | `src/components/complementos/` | Páginas numeradas con elipsis para 7+. Botones prev/next con disabled |
-| `SortDropdown.jsx` | `src/components/complementos/` | Ordenar: Más nuevos. Menor/Mayor precio. A-Z. Mejor valorados |
-| `WishlistContext.jsx` | `src/contexts/` | Contexto de favoritos con localStorage. Mismo patrón que CartContext.jsx |
-| `WishlistButton.jsx` | `src/components/complementos/` | Botón corazón animado (framer-motion). Relleno/outline según estado |
-| `wishlist.jsx` | `src/pages/ecomerce/` | Página de favoritos con grid, skeletons y empty state |
+### Bug Fix: Dashboard estadístico sin datos
 
-#### Frontend — Componentes modificados
-| Archivo | Cambios |
-|---------|---------|
-| `useProducts.js` | +loading, error, page, sort, setPage, setSort, totalPages, totalCount. Maneja respuesta plana y paginada |
-| `useProductSearch.js` | +page, totalPages, totalCount, changePage, minRating. lastFiltersRef para reutilizar filtros al paginar |
-| `searchResults.jsx` | Migrado de filtrado cliente (useMemo) a API (useProductSearch). Panel de filtros intacto. Paginación + breadcrumbs |
-| `productCard.jsx` | Badges sobre imagen. Precio tachado con original_price. WishlistButton. Eye ahora abre ProductPreviewModal |
-| `products.jsx` | SortDropdown arriba. Pagination abajo. Conteo "Mostrando X de Y". Loading state vía hook |
-| `productDetail.jsx` | Breadcrumb reemplaza "Volver". Alerta stock bajo (≤5). Sticky bar mobile con precio + botón agregar |
-| `mostrarProductosPorCategorias.jsx` | Breadcrumb con nombre de categoría (useCategorys). Respuesta paginada de API |
-| `mostrarProductos.jsx` | Breadcrumb: Inicio > Productos |
-| `mostrarCategorias.jsx` | Breadcrumb: Inicio > Categorías |
-| `barraBusqueda.jsx` | Autocomplete con debounce 300ms. Dropdown con imagen+nombre+precio. Click navega al producto |
-| `cajaUers.jsx` | Icono Heart con badge numérico (wishlistCount). Link a /#/wishlist |
-| `App.jsx` | WishlistProvider anidado. Ruta /wishlist |
+#### Frontend
+| Archivo | Cambio |
+|---------|--------|
+| `estadsiticas.jsx` | Reescrito: panel de alerta amarillo con errores individuales por fetch (productos, categorías, usuarios, órdenes). Errores específicos: sesión expirada, acceso denegado, error servidor, error conexión. Nuevas estadísticas: breakdown de órdenes por estado (Nuevas/Aceptadas/Completadas/Canceladas) con tarjetas, ingresos totales (suma de `order_total` de órdenes activas). Protección contra división por cero en gráfico. `hasOwnProperty` → `Object.prototype.hasOwnProperty.call()` |
+| `ExchangeRatePanel.jsx` | Validación de token antes de enviar peticiones. Mensajes diferenciados para 401/403 (auth) vs errores de API. Muestra `detail` del backend. Validación de tasa manual (no ≤0). Botón renombrado y subtítulo explicativo sobre fuentes |
 
----
+### Feature: Slider del Home — Reescritura completa
 
-## Plan pendiente
+#### Backend
+| Archivo | Cambio |
+|---------|--------|
+| `store/models.py` | +Modelo `Slider`: title, subtitle, image, link_url, link_text, order, is_active, created_at, updated_at. Meta: ordering ['order', '-created_at'] |
+| `store/serializers.py` | +`SliderSerializer` (fields `__all__`), +import `Slider` |
+| `api/views.py` | +`SliderListView` (GET, AllowAny): devuelve slides activos ordenados desde `/api/sliders/` |
+| `api/urls.py` | +ruta `sliders/` → `SliderListView` |
+| `store/admin.py` | +`SliderAdmin` registrado en Django Admin: list_display, list_editable (order, is_active), list_filter, search_fields |
+| `store/migrations/0005_slider.py` | Migración aplicada |
 
-### Completado — Sesión 2 (2026-07-04)
-| # | Elemento | Estado |
-|---|----------|--------|
-| 1 | Hover swap de imagen | ✓ |
-| 2 | Swatches de color visuales | ✓ |
-| 3 | Lightbox / zoom de imagen | ✓ |
-| 4 | Carrusel de relacionados | ✓ |
-| 5 | Scroll-to-top button | ✓ |
-| 6 | Confirm dialog | ✓ |
-| 7 | Mega menú de categorías | ✓ |
-| 8 | Vistos recientemente | ✓ |
-| 9 | Cupón de descuento | ✓ |
-| 10 | Timeline de pedido | ✓ |
-| 11 | Unificar iconos | ✓ |
-| 12 | Unificar toasts | ✓ |
-| 13 | Modo oscuro | ✓ |
-| 14 | Lazy loading imágenes | ✓ |
-| 15 | Focus indicators | ✓ |
-| 16 | Skeleton component unificado | ✓ |
-| 17 | WhatsApp flotante | ✓ |
+#### Frontend
+| Archivo | Cambio |
+|---------|--------|
+| `useSlider.js` | Reescrito: fetch dinámico desde `/api/sliders/` con fallback estático (`siler.js`), auto-play 5s con `setInterval`, pause/resume vía `isPaused`, swipe/touch con pointer events (umbral 50px, prioriza horizontal), keyboard ← → con `handleKeyDown`, cleanup de intervalos en unmount |
+| `sliderProducts.jsx` | Reescrito: `AnimatePresence` + `motion.div` con variantes direccionales (fade+slide), gradiente overlay `bg-gradient-to-t from-black/70`, texto animado (h2, p, button con stagger delays), dots clickeables con estado activo (barra azul `w-8` vs círculo blanco/semitransparente `w-2.5`), flechas `ChevronLeft`/`ChevronRight` visibles on hover (`group-hover:opacity-100`), barra de progreso auto-play (`motion.div` width 0→100% en 5s), skeleton loading state, `loading="lazy"` (primera img eager), accesibilidad completa (role, aria-roledescription, aria-label, aria-current, tabIndex, keyboard) |
+| `siler.js` | Actualizado: cada slide ahora incluye `title`, `subtitle`, `link_url`, `link_text` para el fallback estático |
+
+### Datos importantes de esta sesión
+| Dato | Valor |
+|------|-------|
+| APIs BCV funcionales | Todas las APIs venezolanas están caídas o con Cloudflare anti-bot. Los fallbacks genéricos (`open.er-api.com`, `exchangerate-api.com`) sí funcionan pero devuelven VES (tasa de mercado, no necesariamente BCV oficial). Se recomienda usar modo manual. |
+| Venv backend | `BackEnd/proyectoIII/env/` — activar con `source ../env/bin/activate` desde `ecommerce-main/` |
+| Slider admin | Acceder vía Django Admin (`/securelogin/`) → Store → Sliders. Ordenar con `order`, activar/desactivar con `is_active`. Si no hay slides en BD, el frontend usa los 4 slides estáticos de `siler.js` |
 
 ---
 
 ## Bugs conocidos
 
-### Nuevos (introducidos sesión 2 — ninguno)
-
-### Pre-existentes (sesión 1)
+### Pre-existentes
 | Archivo | Bug |
 |---------|-----|
-| `productPreviewModal.jsx` | `calculateAverageRating()` lee estado antes de que `fetchReviews()` lo actualice (race condition). ~~Usa `alert()` en vez de `toast`~~ — CORREGIDO |
-| ~~`cajaUers.jsx`~~ | ~~Usa `alert()` para logout en vez de `toast`~~ — CORREGIDO |
+| `productPreviewModal.jsx` | `calculateAverageRating()` lee estado antes de que `fetchReviews()` lo actualice (race condition). |
 | ESLint global | `'motion' is defined but never used` en múltiples archivos — falso positivo: framer-motion usa proxy dinámico para `motion.div`, `motion.span`, etc. |
-| `CartContext.jsx`, `AuthContext.jsx`, `WishlistContext.jsx`, `AdminAuthContext.jsx` | `react-refresh/only-export-components` — patrón de exportar hook + provider del mismo archivo |
+| `CartContext.jsx`, `AuthContext.jsx`, `WishlistContext.jsx`, `AdminAuthContext.jsx`, `ExchangeRateContext.jsx`, `CompareContext.jsx`, `RecentlyViewedContext.jsx` | `react-refresh/only-export-components` — patrón de exportar hook + provider del mismo archivo |
