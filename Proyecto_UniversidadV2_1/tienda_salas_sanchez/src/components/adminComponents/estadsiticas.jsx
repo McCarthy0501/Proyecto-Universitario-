@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { Package, DollarSign, TrendingUp, TrendingDown, Users, ShoppingCart, AlertTriangle, BarChart3, Clock, CheckCircle, XCircle, RefreshCw, Ban } from "lucide-react";
 import { API_BASE_URL } from "../../api";
+import { useExchangeRate } from "../../contexts/ExchangeRateContext";
 
 function Estadistica() {
+    const { rate, toBs } = useExchangeRate();
+
     const [stats, setStats] = useState({
         totalProducts: 0,
         totalCategories: 0,
@@ -275,7 +278,11 @@ function Estadistica() {
                         <DollarSign className="w-6 h-6 text-green-600" />
                     </div>
                     <p className="text-3xl font-bold text-green-600">${stats.totalInventoryValue.toFixed(2)}</p>
-                    <p className="text-sm text-gray-500 mt-1">Precio promedio: ${stats.averagePrice.toFixed(2)}</p>
+                    <p className="text-lg font-semibold text-gray-700 mt-1">Bs. {toBs(stats.totalInventoryValue).toLocaleString('es-VE')}</p>
+                    <p className="text-sm text-gray-500 mt-2">
+                        Precio promedio: ${stats.averagePrice.toFixed(2)} / Bs. {toBs(stats.averagePrice).toLocaleString('es-VE')}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">Tasa: 1 USD = Bs. {rate.toLocaleString('es-VE')}</p>
                 </div>
 
                 <div className="bg-white rounded-lg shadow-md p-6">

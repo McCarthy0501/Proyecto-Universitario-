@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { Search, Edit, Trash2, Eye, Download, Filter, X, Plus, AlertTriangle, Package, DollarSign, TrendingUp, TrendingDown } from "lucide-react";
 import { API_BASE_URL } from "../../api";
 import PriceDisplay from "../complementos/PriceDisplay";
+import { useExchangeRate } from "../../contexts/ExchangeRateContext";
 
 export default function TableProducts() {
+    const { rate, toBs } = useExchangeRate();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -306,7 +308,7 @@ export default function TableProducts() {
 
         <div className="flex items-center justify-between text-sm text-gray-600">
           <p>Mostrando {currentProducts.length} de {filteredProducts.length} productos</p>
-          <p>Valor total del inventario: <span className="font-bold text-green-600">${stats.totalValue.toFixed(2)}</span></p>
+          <p>Valor total del inventario: <span className="font-bold text-green-600">${stats.totalValue.toFixed(2)}</span> / <span className="font-semibold text-gray-700">Bs. {toBs(stats.totalValue).toLocaleString('es-VE')}</span></p>
         </div>
       </div>
 

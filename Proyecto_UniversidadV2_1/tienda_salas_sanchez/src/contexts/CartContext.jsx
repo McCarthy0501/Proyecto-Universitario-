@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { API_BASE_URL } from '../api';
+import { useAuth } from '../contexts/AuthContext';
 
 const CartContext = createContext();
 
@@ -15,6 +16,9 @@ const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const initialLoadDone = useRef(false);
+  const { isAuthenticated } = useAuth();
+  const prevAuthRef = useRef(isAuthenticated);
+  const authInitialized = useRef(false);
 
   useEffect(() => {
     const savedCart = localStorage.getItem('cartItems');
@@ -66,6 +70,29 @@ const CartProvider = ({ children }) => {
     }
     return null;
   }, []);
+
+  useEffect(() => {
+    if (!authInitialized.current) {
+      authInitialized.current = true;
+      prevAuthRef.current = isAuthenticated;
+      return;
+    }
+
+    if (prevAuthRef.current && !isAuthenticated) {
+      setCartItems([]);
+      localStorage.removeItem('cartItems');
+    }
+
+    if (!prevAuthRef.current && isAuthenticated) {
+      loadCartFromBackend().then((backendCart) => {
+        if (backendCart && backendCart.length > 0) {
+          setCartItems(backendCart);
+        }
+      });
+    }
+
+    prevAuthRef.current = isAuthenticated;
+  }, [isAuthenticated, loadCartFromBackend]);
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
