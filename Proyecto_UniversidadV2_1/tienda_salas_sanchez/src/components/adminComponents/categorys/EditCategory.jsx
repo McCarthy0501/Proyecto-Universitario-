@@ -2,6 +2,7 @@ import { useNavigate,useParams } from "react-router-dom";
 import { useEffect,useState } from "react";
 import { LogoForm } from "../../header/logo";
 import { API_BASE_URL } from "../../../api";
+import toast from 'react-hot-toast';
 export default function EditCategory(){
     const { id } = useParams();
     const navigate=useNavigate();
@@ -16,20 +17,20 @@ export default function EditCategory(){
         const token = localStorage.getItem("adminToken") || localStorage.getItem("accessToken");
         
         if (!token) {
-            alert("Sesión expirada. Por favor inicie sesión nuevamente");
+            toast.error("Sesión expirada. Por favor inicie sesión nuevamente");
             navigate("/admin");
             return;
         }
         
         const peticionApi =async ()=>{
             try {
-               const res= await fetch(`http://localhost:8000/api/edit_categorias/${id}/`, {
+               const res= await fetch(`${API_BASE_URL}/api/edit_categorias/${id}/`, {
                 headers: {
                     'Authorization': token ? `Bearer ${token}` : '',
                 },
                });
                if (!res.ok) {
-                   alert("Error al cargar categoría");
+                   toast.error("Error al cargar categoría");
                    navigate("/adminPanel");
                    return;
                }
@@ -42,7 +43,7 @@ export default function EditCategory(){
                })
             } catch (error) {
                 console.error(error);
-                alert("Error al conectar con el servidor");
+                toast.error("Error al conectar con el servidor");
             }
         }
         peticionApi();
@@ -62,7 +63,7 @@ export default function EditCategory(){
         const token = localStorage.getItem("adminToken") || localStorage.getItem("accessToken");
         
         if (!token) {
-            alert("Sesión expirada. Por favor inicie sesión nuevamente");
+            toast.error("Sesión expirada. Por favor inicie sesión nuevamente");
             navigate("/admin");
             return;
         }
@@ -83,7 +84,7 @@ export default function EditCategory(){
             
             if (!res.ok) throw new Error("Error al actualizar la categoría");
 
-            alert("Categoría actualizada con éxito");
+            toast.success("Categoría actualizada con éxito");
             navigate("/adminPanel");
         } catch (err) {
         console.error(err);

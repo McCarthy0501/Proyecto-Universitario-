@@ -4,6 +4,7 @@ import { Search, Edit, Trash2, Eye, Download, Filter, X, Plus, AlertTriangle, Pa
 import { API_BASE_URL } from "../../api";
 import PriceDisplay from "../complementos/PriceDisplay";
 import { useExchangeRate } from "../../contexts/ExchangeRateContext";
+import toast from 'react-hot-toast';
 
 export default function TableProducts() {
     const { rate, toBs } = useExchangeRate();
@@ -34,7 +35,7 @@ export default function TableProducts() {
         setProducts(data.results || data);
       } catch (e) {
         console.log("error en los datos", e);
-        alert("Error al cargar productos");
+        toast.error("Error al cargar productos");
       } finally {
         setLoading(false);
       }
@@ -112,7 +113,7 @@ export default function TableProducts() {
     // Funciones de acciones
     const handleDelete = async (productId) => {
       try {
-        const token = localStorage.getItem('accessToken') || '';
+        const token = localStorage.getItem('adminToken') || localStorage.getItem('accessToken') || '';
         const response = await fetch(`${API_BASE_URL}/api/productos/${productId}/`, {
           method: 'DELETE',
           headers: {
@@ -122,16 +123,16 @@ export default function TableProducts() {
         });
 
         if (response.ok || response.status === 204) {
-          alert('Producto eliminado exitosamente');
+          toast.success('Producto eliminado exitosamente');
           fetchProducts();
           setShowDeleteModal(false);
           setProductToDelete(null);
         } else {
-          alert('Error al eliminar el producto');
+          toast.error('Error al eliminar el producto');
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('Error al eliminar el producto');
+        toast.error('Error al eliminar el producto');
       }
     };
 
@@ -140,8 +141,7 @@ export default function TableProducts() {
     };
 
     const handleView = (product) => {
-      // Mostrar vista rápida del producto
-      alert(`Producto: ${product.product_name}\nPrecio: $${product.price}\nStock: ${product.stock}\nDescripción: ${product.description?.substring(0, 100)}...`);
+      navigate(`/producto/${product.id}`);
     };
 
     const handleExport = () => {

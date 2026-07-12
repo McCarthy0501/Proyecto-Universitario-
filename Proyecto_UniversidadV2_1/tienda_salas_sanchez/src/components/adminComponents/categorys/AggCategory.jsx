@@ -2,6 +2,7 @@ import { useState } from "react";
 import { LogoForm } from "../../header/logo";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../../api";
+import toast from 'react-hot-toast';
 function AggCategory() {
   const [error, setError] = useState("");
     const [data,setData]=useState(
@@ -55,7 +56,7 @@ function AggCategory() {
             
           }const resultado=await solicitud.json();
           console.log("Respuesta del backend:", resultado);
-          alert("Categoria creada con exito")
+          toast.success("Categoria creada con exito")
           navegador("/adminPanel");
 
         

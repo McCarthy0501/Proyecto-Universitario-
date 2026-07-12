@@ -23,6 +23,7 @@ import SearchResults from './pages/ecomerce/searchResults';
 import ProductDetailPage from './pages/ecomerce/productDetail';
 import WishlistPage from './pages/ecomerce/wishlist';
 import NotFound from './pages/ecomerce/NotFound';
+import AdminRecovery from './pages/ecomerce/adminRecovery';
 import ScrollToTop from './components/complementos/ScrollToTop';
 import WhatsAppButton from './components/complementos/WhatsAppButton';
 import CompareBar from './components/complementos/CompareBar';
@@ -84,7 +85,9 @@ function App() {
  <Route path="/wishlist" element={<WishlistPage />}></Route>
  </Route>
 
- <Route path="/admin" element={<FormAdmin />}></Route>
+       <Route path="/admin" element={<FormAdmin />}></Route>
+       <Route path="/admin-recovery" element={<AdminRecovery />}></Route>
+       <Route path="*" element={<NotFound />}></Route>
 
  <Route element={<AdminLayout />}>
  <Route path='/adminPanel' element={

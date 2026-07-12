@@ -2,6 +2,7 @@ import { useNavigate,useParams } from "react-router-dom";
 import { useEffect,useState } from "react";
 import { LogoForm } from "../../header/logo";
 import { API_BASE_URL } from "../../../api";
+import toast from 'react-hot-toast';
 
 export default function DeleteCategory() {
     //obtenemos la id por medio de la url de table categori
@@ -12,7 +13,7 @@ useEffect(()=>{
         const token = localStorage.getItem("adminToken") || localStorage.getItem("accessToken");
         const peticion= async ()=>{
             try {
-                const result= await fetch(`http://localhost:8000/api/delete_categorias/${id}/`, {
+                const result= await fetch(`${API_BASE_URL}/api/delete_categorias/${id}/`, {
                     headers: {
                         'Authorization': token ? `Bearer ${token}` : '',
                     },
@@ -49,7 +50,7 @@ useEffect(()=>{
          
          
          try {
-             const solicitud = await fetch(`http://localhost:8000/api/delete_categorias/${id}/`,{
+             const solicitud = await fetch(`${API_BASE_URL}/api/delete_categorias/${id}/`,{
                  method: "DELETE",
                  headers: {
                      'Authorization': token ? `Bearer ${token}` : '',
@@ -57,7 +58,7 @@ useEffect(()=>{
              });
              if (!solicitud.ok) {throw new Error("Error al eliminar la categoría");}
              
-             alert("Se elimino la categoria con exito");
+             toast.success("Se elimino la categoria con exito");
              navegacion("/adminPanel");
 
              

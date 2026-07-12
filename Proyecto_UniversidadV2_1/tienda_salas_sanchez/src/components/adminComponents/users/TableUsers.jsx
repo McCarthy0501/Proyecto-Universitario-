@@ -243,10 +243,10 @@ export default function TableUsers() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2 justify-center">
-                        <button className="p-2 text-blue-600 hover:bg-blue-50 rounded">
+                        <button className="p-2 text-blue-400 hover:bg-blue-50 rounded cursor-not-allowed opacity-50" disabled title="Editar usuario (próximamente)">
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button className="p-2 text-red-600 hover:bg-red-50 rounded">
+                        <button className="p-2 text-red-400 hover:bg-red-50 rounded cursor-not-allowed opacity-50" disabled title="Eliminar usuario (próximamente)">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
